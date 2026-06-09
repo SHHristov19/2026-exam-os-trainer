@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SyncOS Trainer — Синхронизация и Семафори</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F6F8FA;color:#1F2328;font-family:'JetBrains Mono','Fira Mono','Courier New',monospace;font-size:13px;min-height:100vh}
+:root{--amber:#BC6000;--green:#1A7F37;--blue:#0969DA;--border:#D0D7DE;--card:#FFFFFF;--bright:#000000;--muted:#57606A;--red:#CF222E;--purple:#8250DF}
+a{color:var(--blue)}button{font-family:inherit;cursor:pointer}pre,code{font-family:'JetBrains Mono','Fira Mono','Courier New',monospace}
+#header{background:#FFFFFF;border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100}
+.logo{font-size:17px;font-weight:700;color:var(--bright)}.logo-acc{color:var(--amber)}.header-sub{font-size:10px;color:var(--muted);display:block;margin-top:2px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;transition:all .15s}
+.nav-btn:hover{color:var(--bright);background:#F3F4F6}.nav-btn.active{background:#EFF6FF;color:var(--blue);border-color:var(--blue)}
+.two-col{display:flex;height:calc(100vh - 56px)}
+.sidebar{width:240px;background:#FFFFFF;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar-sm{width:190px}
+.side-block{padding:10px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0}
+.side-label{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;margin-top:8px;font-weight:700}
+.side-label:first-child{margin-top:0}
+.pill-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px}
+.pill{font-size:10px;padding:3px 7px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--muted)}
+.pill:hover{border-color:#888;color:var(--bright);background:#F3F4F6}.pill.active{background:#EFF6FF;color:var(--blue);border-color:var(--blue)}
+.task-list{overflow-y:auto;flex:1;padding:6px;background:#F6F8FA}
+.task-item{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:6px;border:1px solid transparent;background:#FFFFFF;color:inherit;margin-bottom:5px;box-shadow:0 1px 2px rgba(0,0,0,.05);transition:all .1s}
+.task-item:hover{background:#F3F4F6;border-color:var(--border)}.task-item.active{background:#E2E8F0;border-color:#94A3B8}
+.main{flex:1;overflow-y:auto;padding:18px 22px;background:#F6F8FA}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.sec-label{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;background:#F3F4F6;color:var(--muted);border:1px solid var(--border);display:inline-block;margin:2px 2px 2px 0}
+.mode-btns{display:flex;gap:4px;flex-wrap:wrap}
+.mode-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px}
+.mode-btn:hover{color:var(--bright);background:#F3F4F6}.mode-btn.active{background:#EFF6FF;color:var(--blue);border-color:var(--blue)}
+.info-box{background:#FFF8E7;border:1px solid #FFE0B2;border-left:3px solid var(--amber);border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#5c3e00}
+.error-box{background:#FFF5F5;border:1px solid #FFCDD2;border-left:3px solid var(--red);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:12px;line-height:1.6;color:#7f1d1d}
+.ok-box{background:#F0FFF4;border:1px solid #C3E6CB;border-left:3px solid var(--green);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:12px;line-height:1.6;color:#14532d}
+.cmd-block{background:#F6F8FA;border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:#1F2328;white-space:pre-wrap;line-height:1.6;margin:6px 0;display:block;font-size:12px;overflow-x:auto}
+.cmd-amber{color:var(--amber);font-weight:600}.cmd-green{color:var(--green);font-weight:600}.cmd-blue{color:var(--blue);font-weight:600}.cmd-red{color:var(--red);font-weight:600}
+.tip-box{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;font-style:italic}
+.cmd-tag{font-size:10px;padding:2px 8px;border-radius:99px;border:1px solid #FFE0B2;background:#FFF8E7;color:var(--amber);font-family:monospace;font-weight:600}
+.cmd-tag:hover{background:#FFE0B2}
+.desc-pre{white-space:pre-wrap;font-family:inherit;font-size:12px;color:#1F2328;line-height:1.7}
+.pipeline-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+.pipeline-step.done{border-color:#4CAF7A66;background:#F6FFFA}
+.check-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:#FFF;color:var(--muted);font-size:10px;flex-shrink:0}
+.check-btn.done{background:#E6F4EA;border-color:var(--green);color:var(--green)}
+.example-row{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+.out-box{background:#F6F8FA;border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--green);white-space:pre-wrap;font-size:12px;margin-top:6px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:600;border-bottom:1px solid var(--border);background:#F3F4F6}
+td{padding:7px 10px;border-bottom:1px solid var(--border);color:#1F2328}
+tr:nth-child(even) td{background:#FAFAFA}
+.hidden{display:none!important}
+.thread-col{display:flex;gap:12px;margin:8px 0}
+.thread-box{flex:1;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.thread-header{background:#F3F4F6;padding:6px 10px;font-size:11px;font-weight:700;border-bottom:1px solid var(--border)}
+.thread-body{padding:8px 10px}
+.thread-line{font-size:11px;padding:2px 4px;border-radius:3px;margin-bottom:2px;font-family:monospace;line-height:1.6}
+.thread-line.highlight{background:#FFF3CD;border-left:3px solid var(--amber);padding-left:6px}
+.thread-line.race{background:#FFEBEE;border-left:3px solid var(--red);padding-left:6px}
+.thread-line.ok{background:#E8F5E9;border-left:3px solid var(--green);padding-left:6px}
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:24px}
+.pattern-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+.pattern-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.exam-wrap{max-width:700px;margin:40px auto;padding:0 20px}
+.exam-btn{padding:10px 24px;border-radius:6px;border:none;background:var(--amber);color:#FFF;font-family:inherit;font-size:13px;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.exam-btn:hover{opacity:.9}.exam-btn.green-btn{background:var(--green)}
+.exam-timer{font-size:18px;color:var(--amber);font-family:monospace;font-weight:700}
+.roadmap-step{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:8px;margin-bottom:8px;border:1px solid var(--border);background:#FFF}
+.roadmap-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;color:#FFF}
+.deadlock-condition{border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:8px;background:#FFF}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#F6F8FA}::-webkit-scrollbar-thumb{background:#CDD5DC;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#94A3B8}
+@media(max-width:700px){.two-col{flex-direction:column;height:auto}.sidebar,.sidebar-sm{width:100%;height:auto;max-height:220px;border-right:none;border-bottom:1px solid var(--border)}.main{padding:12px}#header{padding:8px 12px}}
+</style>
+</head>
+<body>
+<div id="header">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;border:1px solid #D0D7DE;background:#F6F8FA;color:#57606A;font-size:11px;text-decoration:none;font-weight:600;transition:all .15s" onmouseover="this.style.background='#E2E8F0'" onmouseout="this.style.background='#F6F8FA'">← Начало</a>
+    <div>
+      <span class="logo"><span class="logo-acc">⚡</span> SyncOS Trainer</span>
+      <span class="header-sub">Синхронизация и семафори · Подготовка за изпит по ОС · ФМИ</span>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-tab="home" onclick="showTab('home')">🏠 Начало</button>
+    <button class="nav-btn" data-tab="theory" onclick="showTab('theory')">📖 Теория</button>
+    <button class="nav-btn" data-tab="patterns" onclick="showTab('patterns')">🔧 Patterns</button>
+    <button class="nav-btn" data-tab="problems" onclick="showTab('problems')">📝 Задачи</button>
+    <button class="nav-btn" data-tab="racelab" onclick="showTab('racelab')">🔬 Race Lab</button>
+    <button class="nav-btn" data-tab="deadlocklab" onclick="showTab('deadlocklab')">💀 Deadlock Lab</button>
+    <button class="nav-btn" data-tab="exam" onclick="showTab('exam')">⏱ Изпит</button>
+  </nav>
+</div>
+
+<!-- ═══════════════════════════════ HOME TAB ═══════════════════════════════ -->
+<div id="tab-home">
+<div style="max-width:860px;margin:0 auto;padding:32px 24px">
+  <div style="text-align:center;margin-bottom:32px">
+    <h1 style="font-size:26px;font-weight:700;color:var(--bright);margin-bottom:8px">Как се решава задача по синхронизация</h1>
+    <p style="color:var(--muted);font-size:13px;line-height:1.8">Всяка задача по семафори следва един и същи мисловен процес.<br>Научи процеса — не наизуст решенията.</p>
+  </div>
+  <div style="margin-bottom:32px">
+    <div class="roadmap-step">
+      <div class="roadmap-num" style="background:#0969DA">1</div>
+      <div><div style="font-weight:700;color:var(--bright);margin-bottom:4px">Намери shared variables</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Кои променливи се четат/пишат от повече от една нишка? Това са потенциалните race conditions. Потърси: брояч, буфер, флаг, структура от данни.</div></div>
+    </div>
+    <div class="roadmap-step">
+      <div class="roadmap-num" style="background:#1A7F37">2</div>
+      <div><div style="font-weight:700;color:var(--bright);margin-bottom:4px">Намери critical sections</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Кои блокове код трябва да се изпълняват атомарно? Разбий сложните операции на LOAD → MODIFY → STORE и намери опасните interleavings.</div></div>
+    </div>
+    <div class="roadmap-step">
+      <div class="roadmap-num" style="background:#8250DF">3</div>
+      <div><div style="font-weight:700;color:var(--bright);margin-bottom:4px">Определи типа синхронизация</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6"><b>Mutual exclusion</b> — само един може в дадено време. <b>Ordering</b> — A трябва да се случи преди B. <b>Bounded access</b> — до N едновременно. <b>Coordination</b> — всички чакат всички.</div></div>
+    </div>
+    <div class="roadmap-step">
+      <div class="roadmap-num" style="background:#BC6000">4</div>
+      <div><div style="font-weight:700;color:var(--bright);margin-bottom:4px">Избери pattern</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Не измисляй нещо от нулата. Повечето задачи са варианти на: mutex, multiplex, barrier, producer-consumer, readers-writers, rendezvous.</div></div>
+    </div>
+    <div class="roadmap-step">
+      <div class="roadmap-num" style="background:#CF222E">5</div>
+      <div><div style="font-weight:700;color:var(--bright);margin-bottom:4px">Провери за deadlock</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Има ли циклично чакане? Забравен signal? Вложени lock-ове в грешен ред? Провери всичките 4 условия на Coffman.</div></div>
+    </div>
+    <div class="roadmap-step">
+      <div class="roadmap-num" style="background:#57606A">6</div>
+      <div><div style="font-weight:700;color:var(--bright);margin-bottom:4px">Провери за starvation и fairness</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">Може ли някоя нишка да чака вечно? Дали reader priority задушава writers? Нужен ли е no-starve вариант?</div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="sec-label">Разпознай задачата по ключови думи</div>
+    <table>
+      <thead><tr><th>Ако видиш в условието...</th><th>Pattern</th><th>Семафори</th></tr></thead>
+      <tbody>
+        <tr><td>„само един", „exclusive access", „не едновременно"</td><td style="color:var(--blue);font-weight:600">Mutex</td><td style="font-family:monospace;color:var(--muted)">mutex = Semaphore(1)</td></tr>
+        <tr><td>„до N", „максимум N едновременно"</td><td style="color:var(--blue);font-weight:600">Multiplex</td><td style="font-family:monospace;color:var(--muted)">multiplex = Semaphore(N)</td></tr>
+        <tr><td>„всички чакат", „след като всички пристигнат"</td><td style="color:var(--blue);font-weight:600">Barrier</td><td style="font-family:monospace;color:var(--muted)">counter + mutex + turnstile</td></tr>
+        <tr><td>„producer/consumer", „буфер", „опашка"</td><td style="color:var(--blue);font-weight:600">Bounded Buffer</td><td style="font-family:monospace;color:var(--muted)">empty + full + mutex</td></tr>
+        <tr><td>„четци и писачи", „read/write access"</td><td style="color:var(--blue);font-weight:600">Readers-Writers</td><td style="font-family:monospace;color:var(--muted)">roomEmpty + mutex + readers</td></tr>
+        <tr><td>„ред", „FIFO", „справедливост", „не гладува"</td><td style="color:var(--blue);font-weight:600">Queue / No-starve</td><td style="font-family:monospace;color:var(--muted)">turnstile + queue semaphore</td></tr>
+        <tr><td>„две нишки се срещат", „и двете трябва да стигнат"</td><td style="color:var(--blue);font-weight:600">Rendezvous</td><td style="font-family:monospace;color:var(--muted)">aArrived + bArrived = Sem(0)</td></tr>
+        <tr><td>„предай управлението", „pass the baton"</td><td style="color:var(--blue);font-weight:600">Pass the Baton</td><td style="font-family:monospace;color:var(--muted)">mutex + condition semaphore</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="sec-label">Семафорна аритметика — правилото</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ok-box" style="margin:0">
+        <div style="font-weight:700;margin-bottom:4px">✓ Правилна инициализация</div>
+        <div style="font-size:11px;line-height:1.7">Mutex → init(1)<br>Ordering / signaling → init(0)<br>Multiplex(N) → init(N)<br>empty(buffer_size), full → init(0)</div>
+      </div>
+      <div class="error-box" style="margin:0">
+        <div style="font-weight:700;margin-bottom:4px">✗ Класически грешки</div>
+        <div style="font-size:11px;line-height:1.7">Забравен signal() → deadlock<br>Двоен wait() → deadlock<br>signal() преди wait() → race<br>Вложени mutex lock-ове в грешен ред → deadlock</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ THEORY TAB ═══════════════════════════════ -->
+<div id="tab-theory" class="hidden">
+<div class="two-col">
+  <aside class="sidebar sidebar-sm">
+    <div class="side-block"><div class="side-label">Теория</div></div>
+    <div class="task-list">
+      <button class="task-item active" onclick="showTheory('race',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">🔥 Race Conditions</div><div style="font-size:11px;color:var(--muted)">Interleavings, LOAD/STORE</div></button>
+      <button class="task-item" onclick="showTheory('semaphores',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">⚡ Семафори</div><div style="font-size:11px;color:var(--muted)">Дефиниция, wait, signal</div></button>
+      <button class="task-item" onclick="showTheory('mutex',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">🔒 Mutex</div><div style="font-size:11px;color:var(--muted)">Critical section, шаблон</div></button>
+      <button class="task-item" onclick="showTheory('multiplex',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">🔢 Multiplex</div><div style="font-size:11px;color:var(--muted)">Counting semaphore, N нишки</div></button>
+      <button class="task-item" onclick="showTheory('barrier',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">🚧 Barrier</div><div style="font-size:11px;color:var(--muted)">Turnstile, reusable barrier</div></button>
+      <button class="task-item" onclick="showTheory('prodcons',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">📦 Producer-Consumer</div><div style="font-size:11px;color:var(--muted)">Bounded buffer</div></button>
+      <button class="task-item" onclick="showTheory('readwrite',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">📚 Readers-Writers</div><div style="font-size:11px;color:var(--muted)">Starvation, fairness</div></button>
+      <button class="task-item" onclick="showTheory('deadlock',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">💀 Deadlock</div><div style="font-size:11px;color:var(--muted)">Coffman, circular wait</div></button>
+      <button class="task-item" onclick="showTheory('advanced',this)"><div style="font-size:12px;font-weight:700;color:var(--bright)">🎯 Advanced Patterns</div><div style="font-size:11px;color:var(--muted)">Pass baton, Rendezvous, Queue</div></button>
+    </div>
+  </aside>
+  <main class="main" id="theory-main"></main>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ PATTERNS TAB ═══════════════════════════════ -->
+<div id="tab-patterns" class="hidden">
+<div style="padding:24px;max-width:1100px;margin:0 auto">
+  <h2 style="font-size:18px;font-weight:700;color:var(--bright);margin-bottom:6px">Pattern Matcher — Разпознай и реши</h2>
+  <p style="color:var(--muted);font-size:12px;margin-bottom:24px">Натисни pattern за да видиш пълния шаблон, семафорите и типичните грешки.</p>
+  <div class="pattern-grid" style="padding:0" id="patterns-grid"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ PROBLEMS TAB ═══════════════════════════════ -->
+<div id="tab-problems" class="hidden">
+<div class="two-col">
+  <aside class="sidebar">
+    <div class="side-block">
+      <div class="side-label">Филтър по тип</div>
+      <div class="pill-row">
+        <button class="pill active" onclick="filterProblems(null,this)">Всички</button>
+        <button class="pill" onclick="filterProblems('race',this)">🔥 Race</button>
+        <button class="pill" onclick="filterProblems('mutex',this)">🔒 Mutex</button>
+        <button class="pill" onclick="filterProblems('barrier',this)">🚧 Barrier</button>
+        <button class="pill" onclick="filterProblems('prodcons',this)">📦 Prod/Cons</button>
+        <button class="pill" onclick="filterProblems('readwrite',this)">📚 R/W</button>
+        <button class="pill" onclick="filterProblems('deadlock',this)">💀 Deadlock</button>
+        <button class="pill" onclick="filterProblems('advanced',this)">🎯 Advanced</button>
+      </div>
+      <div class="side-label">Трудност</div>
+      <div class="pill-row">
+        <button class="pill active" onclick="filterDiff(null,this)">Всички</button>
+        <button class="pill" onclick="filterDiff(1,this)">● Лесна</button>
+        <button class="pill" onclick="filterDiff(2,this)">●● Средна</button>
+        <button class="pill" onclick="filterDiff(3,this)">●●● Трудна</button>
+      </div>
+    </div>
+    <div class="task-list" id="problems-list"></div>
+  </aside>
+  <main class="main" id="problems-main">
+    <div style="color:var(--muted);margin-top:40px;text-align:center">Избери задача от списъка ←</div>
+  </main>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ RACE LAB TAB ═══════════════════════════════ -->
+<div id="tab-racelab" class="hidden">
+<div style="max-width:900px;margin:0 auto;padding:24px">
+  <h2 style="font-size:18px;font-weight:700;color:var(--bright);margin-bottom:6px">🔬 Race Condition Lab</h2>
+  <p style="color:var(--muted);font-size:12px;margin-bottom:20px">Виж как различни interleavings водят до различни (и грешни) резултати.</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="sec-label">Избери сценарий</div>
+    <div class="pill-row">
+      <button class="pill active" onclick="selectRaceScenario('counter',this)">counter++</button>
+      <button class="pill" onclick="selectRaceScenario('transfer',this)">Bank transfer</button>
+      <button class="pill" onclick="selectRaceScenario('flag',this)">Flag check</button>
+      <button class="pill" onclick="selectRaceScenario('linked',this)">Linked list insert</button>
+    </div>
+  </div>
+  <div id="race-scenario-display"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ DEADLOCK LAB TAB ═══════════════════════════════ -->
+<div id="tab-deadlocklab" class="hidden">
+<div style="max-width:900px;margin:0 auto;padding:24px">
+  <h2 style="font-size:18px;font-weight:700;color:var(--bright);margin-bottom:6px">💀 Deadlock Lab</h2>
+  <p style="color:var(--muted);font-size:12px;margin-bottom:20px">Анализирай кода и намери дали е възможен deadlock.</p>
+  <div class="card" style="margin-bottom:16px">
+    <div class="sec-label">Избери пример</div>
+    <div class="pill-row">
+      <button class="pill active" onclick="selectDeadlock('rendezvous',this)">Rendezvous deadlock</button>
+      <button class="pill" onclick="selectDeadlock('dining',this)">Dining Philosophers</button>
+      <button class="pill" onclick="selectDeadlock('nested',this)">Nested locks</button>
+      <button class="pill" onclick="selectDeadlock('forgotten',this)">Forgotten signal</button>
+    </div>
+  </div>
+  <div id="deadlock-display"></div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ EXAM TAB ═══════════════════════════════ -->
+<div id="tab-exam" class="hidden">
+<div class="exam-wrap">
+  <div id="exam-start" class="card" style="text-align:center;padding:40px">
+    <div style="font-size:40px;margin-bottom:12px">⏱</div>
+    <h2 style="font-size:22px;font-weight:700;color:var(--bright);margin-bottom:8px">Симулация на изпит</h2>
+    <p style="color:var(--muted);margin-bottom:6px">5 задачи · таймер · без решения</p>
+    <p style="font-size:11px;color:#888;margin-bottom:24px">Смесени типове — race analysis, mutex, barrier, advanced puzzle</p>
+    <button class="exam-btn" onclick="startExam()">Започни изпита</button>
+  </div>
+  <div id="exam-running" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span id="exam-counter" style="color:var(--muted)"></span>
+      <span class="exam-timer" id="exam-timer">00:00</span>
+    </div>
+    <div class="card" id="exam-task-card" style="margin-bottom:16px"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="exam-prev-btn" class="exam-btn" style="background:#F3F4F6;color:var(--muted);box-shadow:none;border:1px solid var(--border)" onclick="examNav(-1)">← Назад</button>
+      <button id="exam-next-btn" class="exam-btn" onclick="examNav(1)">Следваща →</button>
+      <button id="exam-finish-btn" class="exam-btn green-btn hidden" onclick="finishExam()">Завърши и виж решенията</button>
+    </div>
+  </div>
+  <div id="exam-results" class="hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <span style="font-size:18px;font-weight:700;color:var(--bright)">Изпитът завърши</span>
+      <span class="exam-timer" id="exam-final-time"></span>
+    </div>
+    <div id="exam-solutions"></div>
+    <div style="text-align:center;margin-top:20px">
+      <button class="exam-btn" onclick="resetExam()">Опитай отново</button>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
+
+const THEORY = {
+race: {
+  title: "Race Conditions",
+  icon: "🔥",
+  intro: "Race condition се получава когато резултатът от програмата зависи от реда на изпълнение на нишките — ред, върху който нямаме контрол.",
+  sections: [
+    { title: "LOAD → MODIFY → STORE", content: "Всяка операция от вида x = x + 1 на ниско ниво се разбива на три стъпки. Именно тук се крие проблемът.", code: "// Това изглежда атомарно:\ncount = count + 1;\n\n// Но реално е:\ntemp = count;    // LOAD\ntemp = temp + 1; // MODIFY\ncount = temp;    // STORE\n\n// Между всяка стъпка scheduler-ът\n// може да превключи към друга нишка!", codeClass: "cmd-block" },
+    { title: "Опасен interleaving", content: "Ако две нишки изпълнят count++ едновременно при начална стойност 5:", trace: [
+      { thread: "T1", op: "LOAD count", val: "5", type: "highlight" },
+      { thread: "T2", op: "LOAD count", val: "5", type: "race" },
+      { thread: "T1", op: "STORE count", val: "6", type: "highlight" },
+      { thread: "T2", op: "STORE count", val: "6", type: "race" },
+    ], result: "Резултат: count = 6, а трябваше да е 7! (Lost update)" },
+    { title: "Как да намерим race condition", content: "1. Намери всички shared variables\n2. Намери всички места където се четат/пишат\n3. За всяко такова място: разбий на LOAD/MODIFY/STORE\n4. Намери interleaving, при който резултатът е грешен\n5. Това е твоят race condition" },
+    { title: "Типични невъзможни стойности", content: "При race conditions могат да се получат стойности, за които при последователно изпълнение не е имало начин да се появят. Това е силен индикатор за race condition.", code: "// 100 нишки, всяка прави count++ от 0\n// При правилна синхронизация: count = 100\n// При race condition: count може да е\n// между 1 и 100 — зависи от scheduler!", codeClass: "cmd-block cmd-red" },
+  ],
+  mistakes: ["Предполагане, че операцията е атомарна заради синтаксиса", "Тестване само последователно — race conditions се проявяват само при паралелно изпълнение", "Забравяне на операции с ++ и -- — те НЕ са атомарни в повечето езици"],
+},
+semaphores: {
+  title: "Семафори",
+  icon: "⚡",
+  intro: "Семафорът е целочислена променлива с две атомарни операции: wait() и signal(). Той е основният примитив за синхронизация.",
+  sections: [
+    { title: "Дефиниция", content: "Семафорът има стойност (integer) и опашка от чакащи нишки.", code: "// Дефиниция:\nSemaphore sem = Semaphore(initial_value);\n\n// wait() — P() — down():\nsem.wait():\n  sem.value -= 1\n  if sem.value < 0:\n    добави нишката към опашката\n    блокирай нишката\n\n// signal() — V() — up():\nsem.signal():\n  sem.value += 1\n  if sem.value <= 0:\n    извади нишка от опашката\n    събуди я", codeClass: "cmd-block" },
+    { title: "Начална стойност — ключова концепция", content: "Началната стойност определя поведението на семафора:", code: "Semaphore(1)  → mutex (само 1 нишка минава)\nSemaphore(0)  → ordering (сигнализиране, първо wait блокира)\nSemaphore(N)  → multiplex (до N нишки минават)", codeClass: "cmd-block cmd-amber" },
+    { title: "POSIX C синтаксис", content: "На изпита задачите са в C с POSIX семафори:", code: "#include <semaphore.h>\n\nsem_t mutex;\nsem_init(&mutex, 0, 1);  // initial value = 1\n\n// Thread code:\nsem_wait(&mutex);         // wait()\n  /* critical section */\nsem_post(&mutex);         // signal()\n\nsem_destroy(&mutex);", codeClass: "cmd-block cmd-blue" },
+  ],
+  mistakes: ["Бъркане на wait() и signal() — wait намалява, signal увеличава", "Инициализиране с грешна стойност (напр. 0 вместо 1 за mutex)", "Извикване на signal() без предшестващ wait() — нарушава се invariant-ът"],
+},
+mutex: {
+  title: "Mutex — Mutual Exclusion",
+  icon: "🔒",
+  intro: "Mutex гарантира, че само една нишка влиза в critical section в даден момент. Инициализира се с 1.",
+  sections: [
+    { title: "Стандартен шаблон", content: "Всяка нишка, която иска достъп до shared resource:", code: "Semaphore mutex = Semaphore(1);\n\n// Всяка нишка:\nmutex.wait();           // sem_wait(&mutex)\n\n  /* critical section */\n  // само тук работим с shared data\n\nmutex.signal();         // sem_post(&mutex)", codeClass: "cmd-block cmd-amber" },
+    { title: "Защо init(1)?", content: "При init(1) — първата нишка може да влезе веднага (1-1=0, не блокира). Втората нишка чака (0-1=-1, блокира). Когато първата излезе и signal(), втората се събужда.", code: "// Начално: mutex.value = 1\n// T1: wait() → value = 0, T1 влиза\n// T2: wait() → value = -1, T2 блокира\n// T1: signal() → value = 0, T2 се събужда\n// T2: влиза в critical section", codeClass: "cmd-block" },
+    { title: "Пример с counter", content: "Правилна синхронизация на counter++:", code: "sem_t mutex;\nsem_init(&mutex, 0, 1);\nint count = 0;\n\nvoid* thread_func(void* arg) {\n    for (int i = 0; i < 1000; i++) {\n        sem_wait(&mutex);\n        count++;        // protected!\n        sem_post(&mutex);\n    }\n    return NULL;\n}", codeClass: "cmd-block cmd-green" },
+  ],
+  mistakes: ["Забравен sem_post() → deadlock (нишките чакат вечно)", "sem_wait() два пъти без sem_post() → self-deadlock", "Твърде голяма critical section → намалена паралелност", "Вложени mutex lock-ове (mutex А после mutex Б в различен ред в различни нишки) → deadlock"],
+},
+multiplex: {
+  title: "Multiplex — Counting Semaphore",
+  icon: "🔢",
+  intro: "Multiplex ограничава броя нишки, които могат да бъдат в дадена секция едновременно. Семафорът се инициализира с N — максималния брой.",
+  sections: [
+    { title: "Шаблон", content: "Ако искаме максимум N нишки в секцията едновременно:", code: "Semaphore multiplex = Semaphore(N);\n\n// Всяка нишка:\nmultiplex.wait();   // блокира при N нишки вътре\n\n  /* protected section — до N едновременно */\n\nmultiplex.signal(); // освобождава място", codeClass: "cmd-block cmd-amber" },
+    { title: "Как работи при N=3", content: "Три нишки могат да влязат без блокиране. Четвъртата чака:", code: "// multiplex.value = 3 (начално)\n// T1: wait() → value = 2, влиза\n// T2: wait() → value = 1, влиза\n// T3: wait() → value = 0, влиза\n// T4: wait() → value = -1, БЛОКИРА!\n// T1: signal() → value = 0, T4 се събужда", codeClass: "cmd-block" },
+    { title: "Пример: ограничен брой connections", content: "Класически пример — ограничаване на паралелни заявки:", code: "#define MAX_CONNECTIONS 5\nsem_t multiplex;\nsem_init(&multiplex, 0, MAX_CONNECTIONS);\n\nvoid handle_request() {\n    sem_wait(&multiplex);   // чакай слот\n    \n    /* обработи заявката */\n    process_request();\n    \n    sem_post(&multiplex);  // освободи слота\n}", codeClass: "cmd-block cmd-blue" },
+  ],
+  mistakes: ["Бъркане с mutex — mutex е multiplex(1)", "Инициализиране с 0 вместо N — никой не може да влезе", "Извикване само на wait() без signal() → бавно изчерпване на slots"],
+},
+barrier: {
+  title: "Barrier — Reusable Barrier",
+  icon: "🚧",
+  intro: "Barrier спира всички нишки докато всички не пристигнат на дадена точка. Нито една не продължава преди всички да са ready. Reusable barrier може да се използва многократно.",
+  sections: [
+    { title: "Основен Barrier", content: "N нишки трябва да достигнат barrier точката преди всяка да продължи:", code: "// Shared:\nint n = 5;  // брой нишки\nint count = 0;\nSemaphore mutex = Semaphore(1);\nSemaphore turnstile = Semaphore(0);\n\n// Всяка нишка:\nmutex.wait();\n    count++;\n    if (count == n)\n        turnstile.signal();  // последната отваря\nmutex.signal();\n\nturnstile.wait();    // чакай всички\nturnstile.signal();  // пусни следващата (turnstile!)", codeClass: "cmd-block cmd-amber" },
+    { title: "Turnstile идиом", content: "turnstile.wait() + turnstile.signal() е ключовата идея: нишките минават една по една, но всяка пуска следващата. Така 'вълната' се разпространява.", code: "// Вместо да правиш n signal()-а:\n// просто: wait() после signal()\n// Ефект: всички минават последователно\n// Но: никоя не чака другите след barrier\n\nturnstile.wait();\nturnstile.signal();  // пусни следващата", codeClass: "cmd-block" },
+    { title: "Reusable Barrier — два turnstile-а", content: "За многократна употреба трябват два turnstile-а. Единият блокира при нулиране, другият — при събиране:", code: "// Shared:\nint count = 0;\nSemaphore mutex = Semaphore(1);\nSemaphore t1 = Semaphore(1);  // първи turnstile\nSemaphore t2 = Semaphore(0);  // втори turnstile\n\n// Phase 1 — изчакай всички:\nmutex.wait();\n    count++;\n    if (count == n) { t1.wait(); t2.signal(); }\nmutex.signal();\nt2.wait(); t2.signal();\n\n// Phase 2 — нулирай:\nmutex.wait();\n    count--;\n    if (count == 0) { t2.wait(); t1.signal(); }\nmutex.signal();\nt1.wait(); t1.signal();", codeClass: "cmd-block cmd-blue" },
+  ],
+  mistakes: ["Само един turnstile → не работи за reuse (втората вълна прескача barrier)", "Забравен mutex при count++ → race condition на брояча", "Неправилно нулиране на count → barrier не работи за втори цикъл", "N signal()-а вместо turnstile → по-бавно, по-трудно за разсъждаване"],
+},
+prodcons: {
+  title: "Producer-Consumer (Bounded Buffer)",
+  icon: "📦",
+  intro: "Producer произвежда items и ги слага в буфер. Consumer ги взима. Буферът е с краен размер. Нужна е синхронизация за пълен и празен буфер.",
+  sections: [
+    { title: "Трите семафора", content: "Класическото решение използва точно три семафора:", code: "int BUFFER_SIZE = 10;\n\nSemaphore mutex = Semaphore(1);          // защита на буфера\nSemaphore empty = Semaphore(BUFFER_SIZE); // свободни места\nSemaphore full = Semaphore(0);            // запълнени места", codeClass: "cmd-block cmd-amber" },
+    { title: "Producer код", content: "Producer произвежда item и го слага в буфера:", code: "// Producer:\nvoid producer() {\n    while (1) {\n        item = produce_item();\n        \n        empty.wait();   // чакай свободно място\n        mutex.wait();   // влез в critical section\n        \n        buffer_insert(item);\n        \n        mutex.signal(); // излез\n        full.signal();  // съобщи на consumer\n    }\n}", codeClass: "cmd-block cmd-green" },
+    { title: "Consumer код", content: "Consumer взима item от буфера:", code: "// Consumer:\nvoid consumer() {\n    while (1) {\n        full.wait();    // чакай item\n        mutex.wait();   // влез в critical section\n        \n        item = buffer_remove();\n        \n        mutex.signal(); // излез\n        empty.signal(); // съобщи на producer\n        \n        consume_item(item);\n    }\n}", codeClass: "cmd-block cmd-blue" },
+    { title: "Важна наредба", content: "empty.wait() / full.wait() ТРЯБВА да е ПРЕДИ mutex.wait()! Ако е обратното — deadlock:", code: "// ГРЕШНО! Deadlock:\nmutex.wait();   // взе mutex\nempty.wait();   // чака — но producer не може\n                // да сложи item без mutex!\n\n// ПРАВИЛНО:\nempty.wait();   // първо провери ресурс\nmutex.wait();   // после вземи mutex", codeClass: "cmd-block cmd-red" },
+  ],
+  mistakes: ["mutex.wait() преди empty/full.wait() → deadlock", "Забравен empty.signal() или full.signal() → нишките се блокират завинаги", "Само един семафор без mutex → race condition на буфера", "Не се проверява дали буферът е пълен преди insert"],
+},
+readwrite: {
+  title: "Readers-Writers",
+  icon: "📚",
+  intro: "Много нишки могат да четат едновременно, но писачът иска ексклузивен достъп. Ключова тема: starvation — ако четците са непрекъснати, писачите може никога да не получат достъп.",
+  sections: [
+    { title: "Reader Priority — основно решение", content: "Читателите се координират чрез брояч. Първият читател заключва writer-ите, последният ги отключва:", code: "// Shared:\nint readers = 0;\nSemaphore mutex = Semaphore(1);      // защита на readers\nSemaphore roomEmpty = Semaphore(1);  // заето ли е от writer\n\n// Reader:\nmutex.wait();\n    readers++;\n    if (readers == 1)\n        roomEmpty.wait();  // първият блокира writers\nmutex.signal();\n\n/* четене */\n\nmutex.wait();\n    readers--;\n    if (readers == 0)\n        roomEmpty.signal(); // последният освобождава\nmutex.signal();", codeClass: "cmd-block cmd-amber" },
+    { title: "Writer код", content: "Writer иска ексклузивен достъп:", code: "// Writer:\nroomEmpty.wait();  // изчакай всички readers\n\n/* писане */\n\nroomEmpty.signal(); // освободи", codeClass: "cmd-block cmd-blue" },
+    { title: "Starvation проблемът", content: "При reader priority — ако непрекъснато пристигат нови readers, writer може НИКОГА да не получи достъп. Решение: No-starve writers variant.", code: "// No-starve: добави turnstile за fairness\nSemaphore turnstile = Semaphore(1);\n\n// Reader трябва да мине и turnstile:\nturnstile.wait();\nturnstile.signal();\n// ... после нормалния reader код\n\n// Writer заключва turnstile:\nturnstile.wait();       // спира нови readers\nroomEmpty.wait();       // чака текущите да излязат\n/* писане */\nroomEmpty.signal();\nturnstile.signal();     // пуска readers отново", codeClass: "cmd-block cmd-green" },
+  ],
+  mistakes: ["Забравяне на mutex за readers брояч → race condition на брояча", "Writer не проверява за readers → пише докато четат → data corruption", "Прилагане на reader priority без осъзнаване на writer starvation"],
+},
+deadlock: {
+  title: "Deadlock",
+  icon: "💀",
+  intro: "Deadlock е ситуация, при която група нишки чакат една друга и никоя не може да продължи. Изисква ВСИЧКИТЕ 4 условия на Coffman да са изпълнени едновременно.",
+  sections: [
+    { title: "4-те условия на Coffman", content: "Deadlock е възможен само ако ВСИЧКИТЕ 4 са верни:", code: "1. MUTUAL EXCLUSION\n   Ресурсът може да се държи само от 1 нишка едновременно.\n\n2. HOLD AND WAIT\n   Нишката държи ресурс и чака за друг.\n\n3. NO PREEMPTION\n   Ресурс не може принудително да се вземе от нишката.\n\n4. CIRCULAR WAIT\n   T1 чака T2, T2 чака T3, ..., Tn чака T1.\n   (цикъл в графа на чакане)", codeClass: "cmd-block cmd-amber" },
+    { title: "Класически deadlock пример", content: "Две нишки, два mutex-а, обратен ред на lock-ване:", code: "// T1:                    // T2:\nsem_wait(&A);             sem_wait(&B);\nsem_wait(&B);  // чака!  sem_wait(&A);  // чака!\n\n// T1 държи A, чака B.\n// T2 държи B, чака A.\n// DEADLOCK — никой не може да продължи.", codeClass: "cmd-block cmd-red" },
+    { title: "Как да предотвратим — Lock Ordering", content: "Ако ВСИЧКИ нишки lock-ват ресурсите в ЕДИН И СЪЩ РЕД, circular wait е невъзможен:", code: "// Решение: винаги lock A преди B\n// T1:                    // T2:\nsem_wait(&A);             sem_wait(&A);  // T2 ще чака\nsem_wait(&B);             sem_wait(&B);\n/* work */                /* work */\nsem_post(&B);             sem_post(&B);\nsem_post(&A);             sem_post(&A);\n// Резултат: T2 чака T1 да освободи A.\n// НЕма circular wait → НЕма deadlock!", codeClass: "cmd-block cmd-green" },
+    { title: "Checklist за анализ на задача", content: "При анализ на дадена програма за deadlock:", code: "1. Нарисувай Resource Allocation Graph\n2. Намери всички нишки и ресурсите им\n3. Потърси цикъл в графа\n4. Провери всяко условие на Coffman\n5. Ако намериш цикъл с non-preemptible resources → DEADLOCK\n\nПоследователност на lock: ако различни нишки\nlock-ват в различен ред → potential deadlock!", codeClass: "cmd-block" },
+  ],
+  mistakes: ["Предполагане, че deadlock е невъзможен само защото програмата 'изглежда правилно'", "Забравяне на wait() в код → не е deadlock, но е race condition", "Неправилно нулиране на семафор след deadlock → не се решава проблемът, само се маскира"],
+},
+advanced: {
+  title: "Advanced Patterns",
+  icon: "🎯",
+  intro: "Тези patterns са от 'The Little Book of Semaphores' и са нужни за тежките изпитни задачи. Повечето complex проблеми са комбинации от тях.",
+  sections: [
+    { title: "Rendezvous — двустранно сигнализиране", content: "Две нишки трябва да се 'срещнат' — нито една не може да продължи докато другата не пристигне:", code: "// Два семафора init(0):\nSemaphore aArrived = Semaphore(0);\nSemaphore bArrived = Semaphore(0);\n\n// Thread A:              // Thread B:\nstatement_a1;             statement_b1;\naArrived.signal();        bArrived.signal();\nbArrived.wait();          aArrived.wait();\nstatement_a2;             statement_b2;\n\n// Гарантирано: a1 преди b2, b1 преди a2", codeClass: "cmd-block cmd-amber" },
+    { title: "Pass the Baton", content: "Вместо да отключваш mutex и да оставяш нишките да се надпреварват, директно 'предаваш' правото на следващата нишка. Ключово за fairness и ordering.", code: "// Идея: mutex е или locked от нишка,\n// или 'предаден' директно на чакаща нишка.\n// Следващата нишка НЕ преминава mutex — \n// тя го получава директно!\n\n// Шаблон:\nsem_wait(&mutex);\nif (condition && waiting > 0) {\n    // предай директно — не signal mutex!\n    sem_post(&condition_sem);\n} else {\n    sem_post(&mutex);\n}\n// Получателят: след работата си:\nif (next_waiting > 0)\n    sem_post(&next_sem);\nelse\n    sem_post(&mutex);", codeClass: "cmd-block cmd-blue" },
+    { title: "Queue Pattern — FIFO fairness", content: "Когато искаш нишките да се обслужват в реда, в който са чакали:", code: "// Всяка нишка получава собствен семафор:\nSemaphore my_turn = Semaphore(0);\n\n// При влизане: добавя се в опашка\nmutex.wait();\n  queue.push(my_turn);\nmutex.signal();\n\n// Чакай своя ред:\nmy_turn.wait();\n\n/* critical section */\n\n// При излизане: сигнализирай следващия\nmutex.wait();\n  if (!queue.empty()) {\n    next = queue.pop();\n    next.signal();  // pass the baton!\n  }\nmutex.signal();", codeClass: "cmd-block cmd-green" },
+    { title: "Dining Philosophers — ordering solution", content: "5 философи, 5 вилици. Deadlock при circular wait. Решение: последният философ взима вилиците в обратен ред:", code: "// Решение с ordering:\n// Философи 0-3: вземи left после right\n// Философ 4:    вземи right после left\n// → circular wait е невъзможен!\n\nif (i < 4) {\n    sem_wait(&fork[i]);\n    sem_wait(&fork[(i+1) % 5]);\n} else {\n    sem_wait(&fork[(i+1) % 5]);  // обратно!\n    sem_wait(&fork[i]);\n}", codeClass: "cmd-block cmd-amber" },
+  ],
+  mistakes: ["Разрешаване на Rendezvous с wait преди signal → deadlock (вж. Deadlock #1 от книгата)", "Pass the baton без правилно предаване → racing нишки или deadlock", "Dining Philosophers без ordering или ограничение → deadlock при всички взимат left fork едновременно"],
+},
+};
+
+const PATTERNS_DATA = [
+  { id: "mutex", icon: "🔒", name: "Mutex", color: "#0969DA", bg: "#EFF6FF",
+    desc: "Само една нишка в critical section едновременно.",
+    keywords: ["само един", "exclusive access", "не едновременно", "critical section"],
+    semaphores: "mutex = Semaphore(1)",
+    code: "sem_t mutex;\nsem_init(&mutex, 0, 1);\n\n// Thread:\nsem_wait(&mutex);\n  /* critical section */\nsem_post(&mutex);",
+    mistakes: ["Забравен sem_post() → deadlock", "Nested locking в различен ред → deadlock"],
+    problems: ["race-counter","mutex-bank","mutex-flag"],
+  },
+  { id: "multiplex", icon: "🔢", name: "Multiplex", color: "#8250DF", bg: "#F5F0FF",
+    desc: "До N нишки едновременно в защитена секция.",
+    keywords: ["до N", "максимум N", "ограничен брой", "pool"],
+    semaphores: "multiplex = Semaphore(N)",
+    code: "sem_t multiplex;\nsem_init(&multiplex, 0, N);\n\n// Thread:\nsem_wait(&multiplex);\n  /* up to N threads here */\nsem_post(&multiplex);",
+    mistakes: ["Init с 0 вместо N → никой не влиза", "Бъркане с mutex (mutex = multiplex(1))"],
+    problems: ["multiplex-conn","multiplex-printers"],
+  },
+  { id: "barrier", icon: "🚧", name: "Barrier / Turnstile", color: "#BC6000", bg: "#FFF8E7",
+    desc: "Всички N нишки чакат докато всички не пристигнат.",
+    keywords: ["всички чакат", "след като всички", "sync point", "фаза"],
+    semaphores: "count + mutex + turnstile = Semaphore(0)",
+    code: "// Phase:\nmutex.wait();\n  count++;\n  if (count == n) turnstile.signal();\nmutex.signal();\nturnstile.wait();\nturnstile.signal(); // pass it on",
+    mistakes: ["Само 1 turnstile за reusable barrier → не работи", "Без mutex за count → race condition"],
+    problems: ["barrier-threads","barrier-phases"],
+  },
+  { id: "prodcons", icon: "📦", name: "Producer-Consumer", color: "#1A7F37", bg: "#F0FFF4",
+    desc: "Producers слагат в буфер, consumers вземат. Буферът е с краен размер.",
+    keywords: ["буфер", "опашка", "producer", "consumer", "pipeline"],
+    semaphores: "mutex=Sem(1), empty=Sem(SIZE), full=Sem(0)",
+    code: "// Producer:\nempty.wait();\nmutex.wait();\n  buffer_insert(item);\nmutex.signal();\nfull.signal();\n\n// Consumer:\nfull.wait();\nmutex.wait();\n  item = buffer_remove();\nmutex.signal();\nempty.signal();",
+    mistakes: ["mutex.wait() преди empty/full.wait() → deadlock", "Забравен empty/full signal"],
+    problems: ["prodcons-basic","prodcons-finite"],
+  },
+  { id: "readwrite", icon: "📚", name: "Readers-Writers", color: "#CF222E", bg: "#FFF5F5",
+    desc: "Много читатели едновременно, ексклузивен достъп за писачи.",
+    keywords: ["четци и писачи", "read/write", "shared data", "concurrent reads"],
+    semaphores: "roomEmpty=Sem(1), mutex=Sem(1), readers=0",
+    code: "// Reader:\nmutex.wait();\n  readers++;\n  if(readers==1) roomEmpty.wait();\nmutex.signal();\n/* read */\nmutex.wait();\n  readers--;\n  if(readers==0) roomEmpty.signal();\nmutex.signal();\n\n// Writer:\nroomEmpty.wait();\n/* write */\nroomEmpty.signal();",
+    mistakes: ["Забравен mutex за readers брояч", "Writer starvation при reader priority"],
+    problems: ["readwrite-basic","readwrite-nostarve"],
+  },
+  { id: "rendezvous", icon: "🤝", name: "Rendezvous", color: "#57606A", bg: "#F3F4F6",
+    desc: "Две нишки трябва да се 'срещнат' — нито една не продължава преди другата.",
+    keywords: ["среща", "двете трябва", "sync точка", "и двете"],
+    semaphores: "aArrived=Sem(0), bArrived=Sem(0)",
+    code: "// Thread A:              // Thread B:\nstatement_a1;             statement_b1;\naArrived.signal();        bArrived.signal();\nbArrived.wait();          aArrived.wait();\nstatement_a2;             statement_b2;",
+    mistakes: ["wait преди signal → deadlock", "Само 1 семафор вместо 2"],
+    problems: ["rendezvous-basic","rendezvous-extended"],
+  },
+  { id: "passbaton", icon: "🏃", name: "Pass the Baton", color: "#0969DA", bg: "#EFF6FF",
+    desc: "Директно предаване на правото от текущата нишка на следващата. За fairness и ordering.",
+    keywords: ["предай", "следваща нишка", "fair", "ред на обслужване"],
+    semaphores: "mutex=Sem(1), condition=Sem(0), waiting=0",
+    code: "// При промяна на условие:\nif (condition && waiting > 0) {\n    waiting--;\n    condition_sem.signal(); // pass!\n} else {\n    mutex.signal();\n}\n\n// При получаване:\ncondition_sem.wait();\n/* work while holding baton */\n// After: pass or release\nif (next_waiting > 0) {\n    next_sem.signal();\n} else {\n    mutex.signal();\n}",
+    mistakes: ["Освобождаване на mutex вместо директно предаване → races", "Неправилно counting на waiting нишки"],
+    problems: ["passbaton-sushi","passbaton-lightswitch"],
+  },
+  { id: "dining", icon: "🍝", name: "Dining Philosophers", color: "#BC6000", bg: "#FFF8E7",
+    desc: "5 философи, 5 вилици. Класически deadlock пример. Решение: ordering.",
+    keywords: ["философи", "вилици", "circular", "resource ordering"],
+    semaphores: "fork[5] = {Sem(1), Sem(1), Sem(1), Sem(1), Sem(1)}",
+    code: "// Решение с ordering:\nif (philosopher_id < N-1) {\n    sem_wait(&fork[id]);\n    sem_wait(&fork[(id+1)%N]);\n} else {\n    // Last philosopher: reverse order!\n    sem_wait(&fork[(id+1)%N]);\n    sem_wait(&fork[id]);\n}\n/* eat */\nsem_post(&fork[id]);\nsem_post(&fork[(id+1)%N]);",
+    mistakes: ["Всички вземат left fork → circular wait → deadlock", "Tanenbaum решение без проверка за starvation"],
+    problems: ["dining-basic","dining-starving"],
+  },
+];
+
+const PROBLEMS = [
+  { id: "race-counter", type: "race", difficulty: 1,
+    title: "Race condition на брояч",
+    shortDesc: "Намери проблема и обясни всички опасни interleavings.",
+    description: "Две нишки изпълняват следния код едновременно при начална стойност counter = 0:\n\nvoid* thread(void* arg) {\n    for (int i = 0; i < 100; i++)\n        counter++;\n    return NULL;\n}\n\nВъзможни ли са стойности различни от 200? Обясни. Каква е минималната възможна стойност?",
+    hint: "Разбий counter++ на LOAD, MODIFY, STORE. Намери interleaving, при който и двете нишки зареждат 0 и записват 1.",
+    solution: "counter++ се разбива на:\n1. temp = counter  (LOAD)\n2. temp = temp + 1  (MODIFY)\n3. counter = temp  (STORE)\n\nОпасен interleaving (обе нишки виждат 0):\nT1: LOAD  counter=0 → temp1=0\nT2: LOAD  counter=0 → temp2=0\nT1: STORE temp1+1=1 → counter=1\nT2: STORE temp2+1=1 → counter=1  ← загубено увеличаване!\n\nМинимална стойност: 2\n(двете нишки правят 100 итерации всяка, но ако почти всичко се загуби, поне последните записи са видими)\n\nФиксиране:\nsem_t m; sem_init(&m,0,1);\nsem_wait(&m); counter++; sem_post(&m);",
+    patterns: ["race"], tags: ["counter++", "LOAD/STORE", "lost update"] },
+  { id: "race-bank", type: "race", difficulty: 2,
+    title: "Race condition при банков превод",
+    shortDesc: "Две нишки превеждат пари едновременно — намери проблема.",
+    description: "Функцията transfer изтегля от src и добавя към dst:\n\nvoid transfer(int* src, int* dst, int amount) {\n    *src -= amount;\n    *dst += amount;\n}\n\nДве нишки извикват:\nT1: transfer(&A, &B, 100);  // A→B\nT2: transfer(&A, &B, 50);   // A→B\n\nПри начални стойности A=500, B=0, каква е крайната стойност?\nМоже ли A да стане отрицателно?",
+    hint: "Помисли кога точно T2 прочита стойността на A след като T1 я е намалил, но преди T1 да е увеличил B.",
+    solution: "Проблем 1 — Lost update:\nT1: reads A=500\nT2: reads A=500\nT1: writes A=400\nT2: writes A=450  ← T2 overwrites T1!\nРезултат: A=450, B=100 (вместо A=350, B=150)\n\nПроблем 2 — Inconsistent state:\nT1: *src -= 100  → A=400\n[превключване]\nT2: reads A=400, reads B=0\nT2: *src -= 50   → A=350\nT2: *dst += 50   → B=50\n[обратно]\nT1: *dst += 100  → B=150\nРезултат: A=350, B=150 ✓ (случайно правилно)\n\nНо може да е A=450, B=150 — парите се 'създават'!\n\nФиксиране: mutex около цялата transfer функция.",
+    patterns: ["race", "mutex"], tags: ["bank transfer", "inconsistent state", "atomic"] },
+  { id: "mutex-basic", type: "mutex", difficulty: 1,
+    title: "Добави mutex към shared counter",
+    shortDesc: "Синхронизирай достъпа до споделен брояч.",
+    description: "Дадена е следната програма с N нишки:\n\nint counter = 0;\n\nvoid* thread_func(void* arg) {\n    for (int i = 0; i < 1000; i++) {\n        counter++;  // UNSAFE!\n    }\n    return NULL;\n}\n\n1. Защо е unsafe?\n2. Добави sem_t mutex за да направиш counter++ thread-safe.\n3. Вярно ли е, че при N=1 нишка няма нужда от mutex?",
+    hint: "sem_init(&mutex, 0, 1) → init value = 1 за mutex.",
+    solution: "1. counter++ не е атомарна операция — разбива се на LOAD/MODIFY/STORE.\n   Две нишки могат да прочетат едно и също значение и да загубят едно увеличаване.\n\n2. Решение:\nsem_t mutex;\nsem_init(&mutex, 0, 1);\n\nvoid* thread_func(void* arg) {\n    for (int i = 0; i < 1000; i++) {\n        sem_wait(&mutex);\n        counter++;\n        sem_post(&mutex);\n    }\n    return NULL;\n}\n\n3. При N=1 нишка: технически няма race condition, но:\n   - Добрата практика е винаги да синхронизираш\n   - Кодът може да се промени по-късно\n   - Компилаторът може да преподреди операциите",
+    patterns: ["mutex"], tags: ["sem_init", "critical section", "thread-safe"] },
+  { id: "deadlock-rendezvous", type: "deadlock", difficulty: 2,
+    title: "Deadlock в Rendezvous",
+    shortDesc: "Защо тази имплементация на Rendezvous води до deadlock?",
+    description: "Следният код трябва да имплементира Rendezvous (A и B се срещат):\n\nSemaphore aArrived = Semaphore(0);\nSemaphore bArrived = Semaphore(0);\n\n// Thread A:              // Thread B:\nstatement_a1;             statement_b1;\nbArrived.wait();          aArrived.wait();\naArrived.signal();        bArrived.signal();\nstatement_a2;             statement_b2;\n\n1. Обясни защо това води до deadlock.\n2. Дай правилното решение.",
+    hint: "Проследи какво се случва ако A пристига първи. Може ли A да signal()-не преди B да е пристигнал?",
+    solution: "ПРОБЛЕМ:\nАко A пристига първи:\n  A: bArrived.wait() → блокира! (B не е сигнализирал)\n  A не може да достигне aArrived.signal()\n\nАко B пристига:\n  B: aArrived.wait() → блокира! (A не е сигнализирал)\n\nДвете нишки са блокирани и чакат сигнал от другата.\nNITO EDNA не може да signal()-не — DEADLOCK!\n\nПРАВИЛНО РЕШЕНИЕ:\n// Thread A:              // Thread B:\nstatement_a1;             statement_b1;\naArrived.signal();        bArrived.signal();\nbArrived.wait();          aArrived.wait();\nstatement_a2;             statement_b2;\n\nКлючът: ПЪРВО signal(), ПОСЛЕ wait()!\nТака нишката сигнализира своето пристигане преди да чака другата.",
+    patterns: ["rendezvous", "deadlock"], tags: ["Deadlock #1", "rendezvous", "signal преди wait"] },
+  { id: "barrier-basic", type: "barrier", difficulty: 2,
+    title: "Имплементирай Barrier за N нишки",
+    shortDesc: "Напиши barrier код — N нишки чакат докато всички пристигнат.",
+    description: "5 нишки изпълняват parallel computation в два етапа.\nПреди Phase 2 да започне, ВСИЧКИ нишки трябва да са завършили Phase 1.\n\nvoid* worker(void* arg) {\n    // Phase 1:\n    phase1_work();\n    \n    // ??? BARRIER ???\n    \n    // Phase 2:\n    phase2_work();\n    return NULL;\n}\n\nИмплементирай barrier-а.",
+    hint: "Трябват ти: int count, Semaphore mutex = Sem(1), Semaphore turnstile = Sem(0).",
+    solution: "// Shared (global):\nint n = 5;\nint count = 0;\nsem_t mutex, turnstile;\nsem_init(&mutex, 0, 1);\nsem_init(&turnstile, 0, 0);\n\nvoid* worker(void* arg) {\n    // Phase 1:\n    phase1_work();\n    \n    // BARRIER:\n    sem_wait(&mutex);\n        count++;\n        if (count == n)\n            sem_post(&turnstile); // последната отваря\n    sem_post(&mutex);\n    \n    sem_wait(&turnstile);  // чакай всички\n    sem_post(&turnstile);  // пусни следващата\n    \n    // Phase 2:\n    phase2_work();\n    return NULL;\n}\n\nОбяснение на turnstile идиома:\nПоследната нишка прави 1 signal → turnstile.value=1.\nПървата нишка: wait() (value→0), signal() (value→1).\nВтората нишка: wait() (value→0), signal() (value→1).\n...\nТака 'вълната' се разпространява и всички минават.",
+    patterns: ["barrier"], tags: ["turnstile", "count", "N нишки"] },
+  { id: "prodcons-finite", type: "prodcons", difficulty: 2,
+    title: "Bounded Buffer Producer-Consumer",
+    shortDesc: "Имплементирай producer-consumer с буфер с размер 10.",
+    description: "Имплементирай производител/консуматор с:\n- буфер с капацитет BUFFER_SIZE = 10\n- множество producers и consumers\n- правилна синхронизация (no race, no deadlock)\n\nОпредели необходимите семафори и напиши кода.",
+    hint: "3 семафора: mutex(1), empty(BUFFER_SIZE), full(0). Внимавай за реда на wait()-овете!",
+    solution: "#define BUFFER_SIZE 10\n\nsem_t mutex, empty, full;\nint buffer[BUFFER_SIZE];\nint in = 0, out = 0;\n\nvoid init() {\n    sem_init(&mutex, 0, 1);\n    sem_init(&empty, 0, BUFFER_SIZE); // свободни места\n    sem_init(&full,  0, 0);           // запълнени места\n}\n\nvoid producer() {\n    while (1) {\n        int item = produce();\n        sem_wait(&empty);   // чакай свободно място\n        sem_wait(&mutex);   // защити буфера\n            buffer[in] = item;\n            in = (in + 1) % BUFFER_SIZE;\n        sem_post(&mutex);\n        sem_post(&full);    // съобщи на consumer\n    }\n}\n\nvoid consumer() {\n    while (1) {\n        sem_wait(&full);    // чакай item\n        sem_wait(&mutex);   // защити буфера\n            int item = buffer[out];\n            out = (out + 1) % BUFFER_SIZE;\n        sem_post(&mutex);\n        sem_post(&empty);   // освободи място\n        consume(item);\n    }\n}\n\nВАЖНО: empty/full.wait() ПРЕДИ mutex.wait()!\nАко е обратното → deadlock!",
+    patterns: ["prodcons"], tags: ["bounded buffer", "empty/full/mutex", "circular buffer"] },
+  { id: "readwrite-basic", type: "readwrite", difficulty: 3,
+    title: "Readers-Writers с reader priority",
+    shortDesc: "Имплементирай класическото readers-writers решение.",
+    description: "База данни се чете от много нишки-читатели и се пише от писачи.\nПравила:\n- Много читатели могат да четат едновременно\n- Само един писач може да пише наведнъж\n- Писач трябва да изчака всички текущи читатели\n\nИмплементирай reader priority решението.",
+    hint: "Трябват ти: int readers=0, mutex=Sem(1), roomEmpty=Sem(1).\nПървият читател заключва writers, последният ги отключва.",
+    solution: "// Shared:\nint readers = 0;\nsem_t mutex;      sem_init(&mutex,0,1);\nsem_t roomEmpty;  sem_init(&roomEmpty,0,1);\n\nvoid reader() {\n    // Влизане:\n    sem_wait(&mutex);\n        readers++;\n        if (readers == 1)\n            sem_wait(&roomEmpty); // 1-вият блокира writers\n    sem_post(&mutex);\n    \n    /* ЧЕТЕНЕ */\n    \n    // Излизане:\n    sem_wait(&mutex);\n        readers--;\n        if (readers == 0)\n            sem_post(&roomEmpty); // последният пуска writers\n    sem_post(&mutex);\n}\n\nvoid writer() {\n    sem_wait(&roomEmpty);  // ексклузивен достъп\n    \n    /* ПИСАНЕ */\n    \n    sem_post(&roomEmpty);\n}\n\nПРОБЛЕМ: Writer starvation!\nАко непрекъснато пристигат readers, writer чака вечно.\n\nФИКС (no-starve): добави turnstile:\n  - Readers трябва да минат turnstile\n  - Writer заключва turnstile → нови readers блокират\n  - Writer чака текущите readers да излязат\n  - Writer пуска turnstile след писане",
+    patterns: ["readwrite"], tags: ["reader priority", "starvation", "roomEmpty"] },
+  { id: "dining-deadlock", type: "deadlock", difficulty: 3,
+    title: "Dining Philosophers — анализ на deadlock",
+    shortDesc: "Защо наивното решение deadlock-ва и как да се оправи?",
+    description: "5 философа седят около маса. Между всеки двама има 1 вилица (5 общо).\nФилософ яде само когато държи И двете вилици (лявата и дясната).\n\nНаивно решение:\nvoid philosopher(int i) {\n    while(1) {\n        think();\n        sem_wait(&fork[i]);         // взима лява\n        sem_wait(&fork[(i+1)%5]);   // взима дясна\n        eat();\n        sem_post(&fork[i]);\n        sem_post(&fork[(i+1)%5]);\n    }\n}\n\n1. Кога точно се случва deadlock?\n2. Посочи кое от 4-те условия на Coffman е изпълнено.\n3. Предложи 2 различни решения.",
+    hint: "Deadlock се случва когато ВСИЧКИ философи вземат лявата вилица едновременно. Как да нарушим Circular Wait?",
+    solution: "1. КОГА: Ако всичките 5 философа вземат лявата вилица едновременно:\n   - F0 взима fork[0], чака fork[1]\n   - F1 взима fork[1], чака fork[2]\n   - ... F4 взима fork[4], чака fork[0]\n   → Circular wait → DEADLOCK\n\n2. COFFMAN CONDITIONS:\n   ✓ Mutual Exclusion: вилицата може да я държи само 1\n   ✓ Hold and Wait: философ държи 1 вилица и чака друга\n   ✓ No Preemption: вилицата не се отнема насилствено\n   ✓ Circular Wait: F0→F1→F2→F3→F4→F0\n\n3. РЕШЕНИЯ:\n\nРешение 1 — Ordering (промени реда за последния):\nif (i < 4) {\n    sem_wait(&fork[i]);\n    sem_wait(&fork[(i+1)%5]);\n} else {  // философ 4 взима в обратен ред\n    sem_wait(&fork[0]);\n    sem_wait(&fork[4]);\n}\n→ Circular wait е невъзможен!\n\nРешение 2 — Multiplex (максимум 4 едновременно):\nsem_t table = Semaphore(4); // max 4 at table\nvoid philosopher(int i) {\n    sem_wait(&table);           // max 4 сядат\n    sem_wait(&fork[i]);\n    sem_wait(&fork[(i+1)%5]);\n    eat();\n    sem_post(&fork[(i+1)%5]);\n    sem_post(&fork[i]);\n    sem_post(&table);\n}",
+    patterns: ["dining", "deadlock"], tags: ["Dining Philosophers", "circular wait", "ordering"] },
+  { id: "advanced-sushi", type: "advanced", difficulty: 3,
+    title: "Sushi Bar Problem (Pass the Baton)",
+    shortDesc: "Клиентите чакат свободно място — или влизат или си тръгват.",
+    description: "Суши бар с N стола.\nКлиент влиза АКО:\n  - има свободно място, ИЛИ\n  - всички места са заети но има клиенти, които излизат (той чака)\nКлиент не влиза АКО:\n  - всички места са заети И никой не излиза\n\nИмплементирай синхронизацията.",
+    hint: "Трябват ти: eating (брояч), waiting (брояч), mutex, must_wait (bool), block=Sem(0).\nКлючовата идея: излизащ клиент 'предава' място директно на чакащ.",
+    solution: "// Shared:\nint eating = 0;   // клиенти ядат\nint waiting = 0;  // клиенти чакат\nbool must_wait = false; // трябва ли да чакаш\nsem_t mutex;     sem_init(&mutex, 0, 1);\nsem_t block;     sem_init(&block, 0, 0);\n\nvoid customer() {\n    // Влизане:\n    sem_wait(&mutex);\n    if (must_wait) {\n        waiting++;\n        sem_post(&mutex);\n        sem_wait(&block);    // чакай да получиш 'бaton'\n        waiting--;\n    }\n    eating++;\n    must_wait = (eating == N); // попълни ли се?\n    if (waiting > 0 && !must_wait) {\n        sem_post(&block);    // предай на следващия\n    } else {\n        sem_post(&mutex);\n    }\n    \n    /* яж суши */\n    \n    // Излизане:\n    sem_wait(&mutex);\n    eating--;\n    if (eating == 0) must_wait = false;\n    if (waiting > 0 && !must_wait) {\n        sem_post(&block);    // Pass the baton!\n    } else {\n        sem_post(&mutex);\n    }\n}\n\nКЛЮЧОВА ИДЕЯ (Pass the Baton):\nИзлизащ клиент НЕ отключва mutex и не оставя нишките да се надпреварват.\nВместо това ДИРЕКТНО предава правото на следващ чакащ.\nТова е 'Pass the Baton' pattern.",
+    patterns: ["passbaton", "mutex"], tags: ["Pass the Baton", "Sushi Bar", "Little Book"] },
+];
+
+const RACE_SCENARIOS = {
+  counter: {
+    title: "counter++ — Lost Update",
+    code: "int counter = 0;\n\n// Thread T1 и T2 изпълняват:\ncounter++;  // НЕ е атомарно!",
+    interleavings: [
+      { name: "Безопасен (последователен)", steps: [
+        {t:"T1",op:"LOAD counter",val:"0",type:"ok"},
+        {t:"T1",op:"MODIFY: 0+1",val:"1",type:"ok"},
+        {t:"T1",op:"STORE counter",val:"1",type:"ok"},
+        {t:"T2",op:"LOAD counter",val:"1",type:"ok"},
+        {t:"T2",op:"MODIFY: 1+1",val:"2",type:"ok"},
+        {t:"T2",op:"STORE counter",val:"2",type:"ok"},
+      ], result: "counter = 2 ✓ Правилно", resultType: "ok" },
+      { name: "Опасен — Lost Update (RACE!)", steps: [
+        {t:"T1",op:"LOAD counter",val:"0",type:"race"},
+        {t:"T2",op:"LOAD counter",val:"0",type:"race"},
+        {t:"T1",op:"MODIFY: 0+1",val:"1",type:"highlight"},
+        {t:"T2",op:"MODIFY: 0+1",val:"1",type:"highlight"},
+        {t:"T1",op:"STORE counter",val:"1",type:"race"},
+        {t:"T2",op:"STORE counter",val:"1",type:"race"},
+      ], result: "counter = 1 ✗ Трябваше да е 2! (Lost update)", resultType: "error" },
+    ]
+  },
+  transfer: {
+    title: "Bank Transfer — Inconsistent State",
+    code: "// A=500, B=0\nvoid transfer(int *src, int *dst, int amount) {\n    *src -= amount;  // НЕ атомарно!\n    *dst += amount;\n}",
+    interleavings: [
+      { name: "Правилно (последователно)", steps: [
+        {t:"T1",op:"A -= 100 → A=400",val:"A=400",type:"ok"},
+        {t:"T1",op:"B += 100 → B=100",val:"B=100",type:"ok"},
+        {t:"T2",op:"A -= 50  → A=350",val:"A=350",type:"ok"},
+        {t:"T2",op:"B += 50  → B=150",val:"B=150",type:"ok"},
+      ], result: "A=350, B=150. Сума: 500 ✓", resultType: "ok" },
+      { name: "Race — парите се 'създават'!", steps: [
+        {t:"T1",op:"LOAD A=500",val:"500",type:"race"},
+        {t:"T2",op:"LOAD A=500",val:"500",type:"race"},
+        {t:"T1",op:"STORE A=400",val:"A=400",type:"highlight"},
+        {t:"T2",op:"STORE A=450",val:"A=450 ← overwrites T1!",type:"race"},
+        {t:"T1",op:"B += 100",val:"B=100",type:"highlight"},
+        {t:"T2",op:"B += 50",val:"B=150",type:"highlight"},
+      ], result: "A=450, B=150. Сума: 600 ✗ (50 лв. се създадоха от нищото!)", resultType: "error" },
+    ]
+  },
+  flag: {
+    title: "Flag Check — Stale Read",
+    code: "bool ready = false;\nint data = 0;\n\n// T1 (writer):    // T2 (reader):\ndata = 42;         while(!ready) {} // spin wait\nready = true;      use(data);",
+    interleavings: [
+      { name: "Правилен ред", steps: [
+        {t:"T1",op:"data = 42",val:"data=42",type:"ok"},
+        {t:"T1",op:"ready = true",val:"ready=true",type:"ok"},
+        {t:"T2",op:"reads ready=true",val:"true",type:"ok"},
+        {t:"T2",op:"use(data=42)",val:"42",type:"ok"},
+      ], result: "use(42) ✓ Правилно", resultType: "ok" },
+      { name: "Reorder — компилаторът може да размени!",steps: [
+        {t:"T1",op:"ready = true (reordered!)",val:"ready=true",type:"race"},
+        {t:"T2",op:"reads ready=true",val:"true",type:"race"},
+        {t:"T2",op:"use(data=0) ← data не е зададено!",val:"0 !!!",type:"race"},
+        {t:"T1",op:"data = 42 (too late)",val:"data=42",type:"highlight"},
+      ], result: "use(0) ✗ Четено е преди запис! Memory reordering.", resultType: "error" },
+    ]
+  },
+  linked: {
+    title: "Linked List Insert — Corrupted Structure",
+    code: "// Вмъкване на новел елемент в края\nvoid insert(Node* new_node) {\n    tail->next = new_node; // НЕ атомарно!\n    tail = new_node;\n}",
+    interleavings: [
+      { name: "Последователно — OK", steps: [
+        {t:"T1",op:"tail->next = A",val:"..→A",type:"ok"},
+        {t:"T1",op:"tail = A",val:"tail=A",type:"ok"},
+        {t:"T2",op:"tail->next = B",val:"A→B",type:"ok"},
+        {t:"T2",op:"tail = B",val:"tail=B",type:"ok"},
+      ], result: "..→A→B ✓ Правилна структура", resultType: "ok" },
+      { name: "Race — загубен елемент!", steps: [
+        {t:"T1",op:"tail->next = A",val:"..→A",type:"race"},
+        {t:"T2",op:"tail->next = B (same tail!)",val:"..→B ← A загубено!",type:"race"},
+        {t:"T1",op:"tail = A",val:"tail=A",type:"highlight"},
+        {t:"T2",op:"tail = B",val:"tail=B",type:"race"},
+      ], result: "..→B (A е загубено!) ✗ Corrupted linked list", resultType: "error" },
+    ]
+  },
+};
+
+const DEADLOCK_EXAMPLES = {
+  rendezvous: {
+    title: "Rendezvous Deadlock",
+    code_bad: "// ГРЕШНО — Deadlock!\n// Thread A:              // Thread B:\nstatement_a1;             statement_b1;\nbArrived.wait();  // ←   aArrived.wait(); // ←\naArrived.signal();        bArrived.signal();\nstatement_a2;             statement_b2;",
+    code_good: "// ПРАВИЛНО — signal преди wait!\n// Thread A:              // Thread B:\nstatement_a1;             statement_b1;\naArrived.signal();        bArrived.signal();\nbArrived.wait();          aArrived.wait();\nstatement_a2;             statement_b2;",
+    analysis: "ЗАЩО DEADLOCK:\nАко A пристига първи:\n  A: bArrived.wait() → БЛОКИРА (B не е сигнализирал)\n  A не може да достигне aArrived.signal()\n\nКогато B пристига:\n  B: aArrived.wait() → БЛОКИРА (A не е сигнализирал)\n\n→ A чака B, B чака A → Circular wait → DEADLOCK!\n\nKOFFMAN ANALYSIS:\n✓ Mutual Exclusion: семафорите са бинарни\n✓ Hold and Wait: A блокира на bArrived и 'държи' нуждата от своя signal\n✓ No Preemption: wait() не може да се отмени\n✓ Circular Wait: A→B, B→A\n\nФИКС: Първо signal(), после wait()!"
+  },
+  dining: {
+    title: "Dining Philosophers Deadlock",
+    code_bad: "// ГРЕШНО — потенциален deadlock!\nvoid philosopher(int i) {\n    sem_wait(&fork[i]);       // взима ЛЯВА вилица\n    sem_wait(&fork[(i+1)%5]); // взима ДЯСНА вилица\n    eat();\n    sem_post(&fork[i]);\n    sem_post(&fork[(i+1)%5]);\n}",
+    code_good: "// ПРАВИЛНО — ordering solution:\nvoid philosopher(int i) {\n    if (i < 4) {      // первите 4: ляво→дясно\n        sem_wait(&fork[i]);\n        sem_wait(&fork[(i+1)%5]);\n    } else {          // последният: дясно→ляво\n        sem_wait(&fork[0]); // reverse!\n        sem_wait(&fork[4]);\n    }\n    eat();\n    sem_post(&fork[i]);\n    sem_post(&fork[(i+1)%5]);\n}",
+    analysis: "КОГА DEADLOCK:\nВсичките 5 вземат ЛЯВАТА вилица едновременно:\n  F0: fork[0] ✓, чака fork[1]\n  F1: fork[1] ✓, чака fork[2]\n  F2: fork[2] ✓, чака fork[3]\n  F3: fork[3] ✓, чака fork[4]\n  F4: fork[4] ✓, чака fork[0]\n→ Circular wait → DEADLOCK!\n\nCOFFMAN CONDITIONS:\n✓ Mutual Exclusion: 1 вилица = 1 философ\n✓ Hold and Wait: държи 1, чака 2-ра\n✓ No Preemption: вилицата не се взима насилствено\n✓ Circular Wait: F0→F1→F2→F3→F4→F0\n\nФИКС: Наруши Circular Wait чрез ordering!"
+  },
+  nested: {
+    title: "Nested Locks в Грешен Ред",
+    code_bad: "// ГРЕШНО — deadlock при конкурентно изпълнение!\n// Thread A:          // Thread B:\nsem_wait(&lockA);     sem_wait(&lockB);\nsem_wait(&lockB);     sem_wait(&lockA); // ← обратен ред!\n/* work */            /* work */\nsem_post(&lockB);     sem_post(&lockA);\nsem_post(&lockA);     sem_post(&lockB);",
+    code_good: "// ПРАВИЛНО — ВИНАГИ един и същ ред!\n// Thread A:          // Thread B:\nsem_wait(&lockA);     sem_wait(&lockA);\nsem_wait(&lockB);     sem_wait(&lockB);\n/* work */            /* work */\nsem_post(&lockB);     sem_post(&lockB);\nsem_post(&lockA);     sem_post(&lockA);\n// Lock ordering: A преди B навсякъде!",
+    analysis: "СЦЕНАРИЙ ЗА DEADLOCK:\nT1: sem_wait(&lockA) → успешно\nT2: sem_wait(&lockB) → успешно\nT1: sem_wait(&lockB) → БЛОКИРА! (T2 го държи)\nT2: sem_wait(&lockA) → БЛОКИРА! (T1 го държи)\n\n→ T1 чака T2, T2 чака T1 → DEADLOCK!\n\nПРАВИЛО: Lock Ordering\nАко всички нишки lock-ват ресурсите ВИНАГИ\nв един и същ ред → circular wait е невъзможен.\n\nАко имаш n ресурса, номерирай ги.\nВинаги lock-вай в нарастващ ред!"
+  },
+  forgotten: {
+    title: "Забравен signal() — Deadlock",
+    code_bad: "// ГРЕШНО — забравен sem_post!\nvoid thread_func() {\n    sem_wait(&mutex);\n    \n    if (error_condition) {\n        // ERROR: Return без sem_post!\n        return;  // mutex остава locked!\n    }\n    \n    /* critical section */\n    \n    sem_post(&mutex); // достига само при липса на грешка\n}",
+    code_good: "// ПРАВИЛНО — sem_post при ВСЕКИ изход!\nvoid thread_func() {\n    sem_wait(&mutex);\n    \n    if (error_condition) {\n        sem_post(&mutex); // не забравяй!\n        return;\n    }\n    \n    /* critical section */\n    \n    sem_post(&mutex);\n}\n\n// Или по-добре — cleanup pattern:\nvoid thread_func() {\n    sem_wait(&mutex);\n    int result = do_work();\n    sem_post(&mutex); // ВИНАГИ се изпълнява\n    // after release, check result\n}",
+    analysis: "ПРОБЛЕМЪТ:\nПри error_condition, функцията се връща\nбез да освободи mutex.\n\nРезултат:\n→ mutex.value остава 0 (или отрицателно)\n→ Всяка следваща нишка, която извика sem_wait()\n  ще блокира завинаги\n→ DEADLOCK за всички чакащи!\n\nЧЕСТА ГРЕШКА в реален код:\n- Exception хвърлена вътре в critical section\n- Early return при error\n- Забравен sem_post в сложен control flow\n\nПРЕВЕНЦИЯ:\n- Никога early return между wait и post\n- Ползвай cleanup labels в C (goto cleanup)"
+  }
+};
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let state = {
+  activeTab: 'home',
+  theorySection: 'race',
+  selectedPattern: null,
+  selectedProblem: null,
+  problemMode: 'desc',
+  problemFilter: null,
+  diffFilter: null,
+  checkedSteps: {},
+  raceScenario: 'counter',
+  raceInterleaving: 0,
+  deadlockExample: 'rendezvous',
+  examTasks: null,
+  examIdx: 0,
+  examDone: false,
+  examTime: 0,
+  examStarted: false,
+  examTimer: null,
+};
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtTime(s) {
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+// ════════ TAB NAVIGATION ════════
+function showTab(tab) {
+  document.querySelectorAll('[id^="tab-"]').forEach(el=>el.classList.add('hidden'));
+  const tabEl = document.getElementById('tab-'+tab);
+  if(tabEl) tabEl.classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.remove('active');
+    if(b.getAttribute('data-tab')===tab) b.classList.add('active');
+  });
+  state.activeTab = tab;
+  if(tab==='theory') renderTheory();
+  if(tab==='patterns') renderPatterns();
+  if(tab==='problems') renderProblemList();
+  if(tab==='racelab') renderRaceLab();
+  if(tab==='deadlocklab') renderDeadlockLab();
+}
+
+// ════════ THEORY ════════
+function showTheory(section, btn) {
+  state.theorySection = section;
+  document.querySelectorAll('#tab-theory .task-item').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderTheory();
+}
+
+function renderTheory() {
+  const m = document.getElementById('theory-main');
+  const t = THEORY[state.theorySection];
+  if(!t) return;
+  let html = `
+    <div style="margin-bottom:18px">
+      <h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:8px">${t.icon} ${esc(t.title)}</h1>
+      <div class="info-box">${esc(t.intro)}</div>
+    </div>`;
+  t.sections.forEach(sec => {
+    html += `<div class="card" style="margin-bottom:14px">
+      <div class="sec-label">${esc(sec.title)}</div>`;
+    if(sec.content) html += `<div style="font-size:12px;color:var(--muted);line-height:1.7;white-space:pre-wrap;margin-bottom:${sec.code?'10px':'0'}">${esc(sec.content)}</div>`;
+    if(sec.trace) {
+      html += `<div style="margin:10px 0">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Execution trace</div>
+        <table><thead><tr><th>Thread</th><th>Операция</th><th>Стойност</th></tr></thead><tbody>`;
+      sec.trace.forEach(row => {
+        const bg = row.type==='race'?'#FFEBEE':row.type==='highlight'?'#FFF3CD':row.type==='ok'?'#E8F5E9':'';
+        html += `<tr style="background:${bg}"><td style="font-weight:700;color:${row.type==='race'?'var(--red)':row.type==='ok'?'var(--green)':'var(--amber)'}">${esc(row.thread)}</td><td style="font-family:monospace">${esc(row.op)}</td><td style="font-family:monospace;font-weight:600">${esc(row.val)}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+      if(sec.result) html += `<div class="error-box" style="margin-top:8px">⚠ ${esc(sec.result)}</div>`;
+      html += `</div>`;
+    }
+    if(sec.code) html += `<code class="${esc(sec.codeClass||'cmd-block')}">${esc(sec.code)}</code>`;
+    html += `</div>`;
+  });
+  if(t.mistakes && t.mistakes.length) {
+    html += `<div class="card" style="border-color:#FFCDD2">
+      <div class="sec-label" style="color:var(--red)">⚠ Чести грешки</div>
+      ${t.mistakes.map(m=>`<div class="error-box" style="margin-bottom:6px">✗ ${esc(m)}</div>`).join('')}
+    </div>`;
+  }
+  m.innerHTML = html;
+}
+
+// ════════ PATTERNS ════════
+function renderPatterns() {
+  const g = document.getElementById('patterns-grid');
+  g.innerHTML = PATTERNS_DATA.map(p => `
+    <div class="pattern-card" style="border-top:3px solid ${p.color};cursor:pointer" onclick="openPatternDetail('${p.id}')">
+      <div class="pattern-header" style="background:${p.bg}">
+        <span style="font-size:24px">${p.icon}</span>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:${p.color}">${esc(p.name)}</div>
+          <div style="font-size:11px;color:var(--muted)">${esc(p.semaphores)}</div>
+        </div>
+      </div>
+      <div style="padding:12px 16px">
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">${esc(p.desc)}</div>
+        <div class="sec-label">Ключови думи</div>
+        <div style="margin-bottom:10px">${p.keywords.map(k=>`<span class="tag">${esc(k)}</span>`).join('')}</div>
+        <div class="sec-label">Семафори</div>
+        <code class="cmd-block" style="font-size:11px;margin:0">${esc(p.semaphores)}</code>
+      </div>
+    </div>`).join('');
+}
+
+function openPatternDetail(id) {
+  const p = PATTERNS_DATA.find(x=>x.id===id);
+  if(!p) return;
+  const modal = document.getElementById('pattern-modal');
+  document.getElementById('pattern-modal-content').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div>
+        <div style="font-size:22px;margin-bottom:4px">${p.icon} <span style="font-size:18px;font-weight:700;color:${p.color}">${esc(p.name)}</span></div>
+        <div style="font-size:12px;color:var(--muted)">${esc(p.desc)}</div>
+      </div>
+      <button onclick="document.getElementById('pattern-modal').classList.add('hidden')" style="background:#F3F4F6;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--muted)">✕ Затвори</button>
+    </div>
+    <div class="sec-label">Шаблон (C pseudocode)</div>
+    <code class="cmd-block" style="margin-bottom:14px">${esc(p.code)}</code>
+    <div class="sec-label">Ключови думи в условието</div>
+    <div style="margin-bottom:14px">${p.keywords.map(k=>`<span class="tag">${esc(k)}</span>`).join('')}</div>
+    <div class="sec-label">Чести грешки</div>
+    ${p.mistakes.map(m=>`<div class="error-box" style="margin-bottom:6px">✗ ${esc(m)}</div>`).join('')}
+    <div class="sec-label" style="margin-top:14px">Задачи от изпита</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+      ${PROBLEMS.filter(pr=>pr.patterns.some(pt=>pt===id)).map(pr=>`
+        <button style="font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#FFF;cursor:pointer;color:var(--blue)" onclick="document.getElementById('pattern-modal').classList.add('hidden');openProblemFromPattern('${pr.id}')">${esc(pr.title)}</button>`).join('')}
+    </div>`;
+  modal.classList.remove('hidden');
+}
+
+function openProblemFromPattern(id) {
+  state.selectedProblem = PROBLEMS.find(p=>p.id===id);
+  state.problemMode = 'desc';
+  showTab('problems');
+  renderProblemList();
+  renderProblemMain();
+}
+
+// ════════ PROBLEMS ════════
+function filterProblems(type, btn) {
+  state.problemFilter = state.problemFilter===type?null:type;
+  document.querySelectorAll('#tab-problems .pill').forEach(b=>b.classList.remove('active'));
+  if(state.problemFilter===null) btn.closest('.pill-row').querySelector('.pill').classList.add('active');
+  else if(btn) btn.classList.add('active');
+  renderProblemList();
+}
+function filterDiff(d, btn) {
+  state.diffFilter = state.diffFilter===d?null:d;
+  btn.closest('.pill-row').querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  if(state.diffFilter===null) btn.closest('.pill-row').querySelector('.pill').classList.add('active');
+  else if(btn) btn.classList.add('active');
+  renderProblemList();
+}
+
+function renderProblemList() {
+  const list = document.getElementById('problems-list');
+  const filtered = PROBLEMS.filter(p=>{
+    if(state.problemFilter && !p.type.includes(state.problemFilter)) return false;
+    if(state.diffFilter && p.difficulty!==state.diffFilter) return false;
+    return true;
+  });
+  const typeColors = {race:'#CF222E',mutex:'#0969DA',barrier:'#BC6000',prodcons:'#1A7F37',readwrite:'#8250DF',deadlock:'#57606A',advanced:'#0969DA'};
+  const typeIcons = {race:'🔥',mutex:'🔒',barrier:'🚧',prodcons:'📦',readwrite:'📚',deadlock:'💀',advanced:'🎯'};
+  list.innerHTML = filtered.length?filtered.map(p=>`
+    <button class="task-item${state.selectedProblem?.id===p.id?' active':''}" onclick="selectProblem('${p.id}')">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="font-size:10px;font-weight:700;color:${typeColors[p.type]||'#666'}">${typeIcons[p.type]||''} ${p.type.toUpperCase()}</span>
+        <span style="font-size:9px;color:#888">${'●'.repeat(p.difficulty)}${'○'.repeat(3-p.difficulty)}</span>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--bright);margin-bottom:3px;line-height:1.3">${esc(p.title)}</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.4">${esc(p.shortDesc)}</div>
+    </button>`).join(''):'<div style="padding:12px;color:var(--muted);font-size:12px">Няма задачи</div>';
+}
+
+function selectProblem(id) {
+  state.selectedProblem = PROBLEMS.find(p=>p.id===id);
+  state.problemMode = 'desc';
+  renderProblemList();
+  renderProblemMain();
+}
+
+function setProblemMode(mode) {
+  state.problemMode = mode;
+  renderProblemMain();
+}
+
+function renderProblemMain() {
+  const m = document.getElementById('problems-main');
+  const p = state.selectedProblem;
+  if(!p) { m.innerHTML='<div style="color:var(--muted);margin-top:40px;text-align:center">Избери задача от списъка ←</div>'; return; }
+  const typeColors={race:'#CF222E',mutex:'#0969DA',barrier:'#BC6000',prodcons:'#1A7F37',readwrite:'#8250DF',deadlock:'#57606A',advanced:'#0969DA'};
+  const modeLabels = {desc:'📄 Условие',hint:'💡 Подсказка',solution:'✅ Решение'};
+  let content = '';
+  if(state.problemMode==='desc') {
+    content=`<div class="card"><pre class="desc-pre" style="font-size:12px;line-height:1.8">${esc(p.description)}</pre></div>`;
+  } else if(state.problemMode==='hint') {
+    content=`<div class="info-box" style="font-size:13px;line-height:1.8"><b>💡 Подсказка:</b><br><br>${esc(p.hint)}</div>`;
+  } else {
+    content=`<div class="card">
+      <div class="sec-label">Решение</div>
+      <code class="cmd-block cmd-green">${esc(p.solution)}</code>
+    </div>`;
+  }
+  m.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:${typeColors[p.type]||'#666'};margin-bottom:4px;text-transform:uppercase">${p.type}</div>
+        <h1 style="font-size:18px;font-weight:700;color:var(--bright);margin:0 0 8px;line-height:1.2">${esc(p.title)}</h1>
+        <div>${p.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+      </div>
+      <div class="mode-btns">${Object.entries(modeLabels).map(([mode,label])=>`<button class="mode-btn${state.problemMode===mode?' active':''}" onclick="setProblemMode('${mode}')">${label}</button>`).join('')}</div>
+    </div>
+    ${content}`;
+}
+
+// ════════ RACE LAB ════════
+function selectRaceScenario(id, btn) {
+  state.raceScenario = id;
+  state.raceInterleaving = 0;
+  document.querySelectorAll('#tab-racelab .pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderRaceLab();
+}
+
+function renderRaceLab() {
+  const sc = RACE_SCENARIOS[state.raceScenario];
+  if(!sc) return;
+  const m = document.getElementById('race-scenario-display');
+  let html=`
+    <div class="card" style="margin-bottom:12px">
+      <div class="sec-label">Код</div>
+      <code class="cmd-block">${esc(sc.code)}</code>
+    </div>
+    <div class="sec-label" style="margin-bottom:8px">Interleavings — натисни за да видиш</div>
+    <div style="display:flex;gap:6px;margin-bottom:16px">
+      ${sc.interleavings.map((il,i)=>`<button class="mode-btn${state.raceInterleaving===i?' active':''}" onclick="selectInterleaving(${i})">${esc(il.name)}</button>`).join('')}
+    </div>`;
+  const il = sc.interleavings[state.raceInterleaving];
+  if(il) {
+    html+=`<div class="card">
+      <div class="sec-label">Execution Trace</div>
+      <table style="margin-bottom:12px">
+        <thead><tr><th>Стъпка</th><th>Thread</th><th>Операция</th><th>Стойност/Ефект</th></tr></thead>
+        <tbody>${il.steps.map((s,i)=>{
+          const bg=s.type==='race'?'#FFEBEE':s.type==='highlight'?'#FFF3CD':s.type==='ok'?'#E8F5E9':'';
+          const tc=s.type==='race'?'var(--red)':s.type==='ok'?'var(--green)':'var(--amber)';
+          return `<tr style="background:${bg}"><td style="font-weight:700;color:var(--muted)">${i+1}</td><td style="font-weight:700;color:${tc};font-family:monospace">${esc(s.t)}</td><td style="font-family:monospace">${esc(s.op)}</td><td style="font-family:monospace;font-weight:600">${esc(s.val)}</td></tr>`;
+        }).join('')}</tbody>
+      </table>
+      <div class="${il.resultType==='ok'?'ok-box':'error-box'}" style="font-weight:700;font-size:13px">${esc(il.result)}</div>
+    </div>`;
+  }
+  m.innerHTML = html;
+}
+
+function selectInterleaving(i) {
+  state.raceInterleaving = i;
+  renderRaceLab();
+}
+
+// ════════ DEADLOCK LAB ════════
+function selectDeadlock(id, btn) {
+  state.deadlockExample = id;
+  document.querySelectorAll('#tab-deadlocklab .pill').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderDeadlockLab();
+}
+
+function renderDeadlockLab() {
+  const ex = DEADLOCK_EXAMPLES[state.deadlockExample];
+  if(!ex) return;
+  const m = document.getElementById('deadlock-display');
+  m.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="card" style="border-top:3px solid var(--red)">
+        <div class="sec-label" style="color:var(--red)">✗ Грешен код — DEADLOCK</div>
+        <code class="cmd-block cmd-red">${esc(ex.code_bad)}</code>
+      </div>
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div class="sec-label" style="color:var(--green)">✓ Правилен код</div>
+        <code class="cmd-block cmd-green">${esc(ex.code_good)}</code>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-label">Анализ — Coffman Conditions</div>
+      <code class="cmd-block" style="white-space:pre-wrap">${esc(ex.analysis)}</code>
+    </div>`;
+}
+
+// ════════ EXAM ════════
+function startExam() {
+  const shuffled = [...PROBLEMS].sort(()=>Math.random()-.5).slice(0,5);
+  state.examTasks = shuffled;
+  state.examIdx = 0; state.examDone = false; state.examTime = 0; state.examStarted = true;
+  document.getElementById('exam-start').classList.add('hidden');
+  document.getElementById('exam-running').classList.remove('hidden');
+  document.getElementById('exam-results').classList.add('hidden');
+  state.examTimer = setInterval(()=>{ state.examTime++; document.getElementById('exam-timer').textContent=fmtTime(state.examTime); },1000);
+  renderExamTask();
+}
+function renderExamTask() {
+  const t = state.examTasks[state.examIdx];
+  const total = state.examTasks.length;
+  document.getElementById('exam-counter').textContent = `Задача ${state.examIdx+1} от ${total}`;
+  document.getElementById('exam-task-card').innerHTML=`
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;font-weight:700">${t.type}</div>
+    <h2 style="font-size:17px;font-weight:700;color:var(--bright);margin:0 0 14px">${esc(t.title)}</h2>
+    <pre class="desc-pre">${esc(t.description)}</pre>
+    <div style="margin-top:10px">${t.tags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div>`;
+  document.getElementById('exam-prev-btn').style.display = state.examIdx>0?'inline-block':'none';
+  if(state.examIdx<total-1){
+    document.getElementById('exam-next-btn').classList.remove('hidden');
+    document.getElementById('exam-finish-btn').classList.add('hidden');
+  } else {
+    document.getElementById('exam-next-btn').classList.add('hidden');
+    document.getElementById('exam-finish-btn').classList.remove('hidden');
+  }
+}
+function examNav(d) { state.examIdx=Math.max(0,Math.min(state.examTasks.length-1,state.examIdx+d)); renderExamTask(); }
+function finishExam() {
+  clearInterval(state.examTimer);
+  state.examDone = true;
+  document.getElementById('exam-running').classList.add('hidden');
+  document.getElementById('exam-results').classList.remove('hidden');
+  document.getElementById('exam-final-time').textContent = '⏱ '+fmtTime(state.examTime);
+  document.getElementById('exam-solutions').innerHTML = state.examTasks.map(t=>`
+    <div class="card" style="margin-bottom:16px">
+      <div style="font-size:11px;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:4px">${t.type}</div>
+      <div style="font-size:15px;font-weight:700;color:var(--bright);margin-bottom:12px">${esc(t.title)}</div>
+      <div class="sec-label">Решение</div>
+      <code class="cmd-block cmd-green">${esc(t.solution)}</code>
+    </div>`).join('');
+}
+function resetExam() {
+  clearInterval(state.examTimer);
+  state.examStarted = false;
+  document.getElementById('exam-start').classList.remove('hidden');
+  document.getElementById('exam-running').classList.add('hidden');
+  document.getElementById('exam-results').classList.add('hidden');
+}
+
+// ════════ INIT ════════
+// Pattern modal
+document.body.insertAdjacentHTML('beforeend',`
+  <div id="pattern-modal" class="hidden" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.classList.add('hidden')">
+    <div style="background:#FFF;border-radius:12px;max-width:700px;width:100%;max-height:85vh;overflow-y:auto;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2)" id="pattern-modal-content"></div>
+  </div>`);
+
+renderProblemList();
+renderRaceLab();
+renderDeadlockLab();
+</script>
+</body>
+</html>
