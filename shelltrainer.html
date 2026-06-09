@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShellOS Trainer — Подготовка за изпит по ОС</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F6F8FA;color:#1F2328;font-family:'JetBrains Mono','Fira Mono','Courier New',monospace;font-size:13px;min-height:100vh}
+:root{
+  --amber:#BC6000;   /* Deepened for readability on light backgrounds */
+  --green:#1A7F37;   /* Rich green for high contrast */
+  --blue:#0969DA;    /* Accessible bright blue */
+  --border:#D0D7DE;  /* Crisp light divider lines */
+  --card:#FFFFFF;    /* Pure white cards */
+  --bright:#000000;  /* Pure black for structural emphasis */
+  --muted:#57606A;   /* Easily readable slate-gray for summaries/details */
+}
+a{color:var(--blue)}
+button{font-family:inherit;cursor:pointer}
+pre,code{font-family:'JetBrains Mono','Fira Mono','Courier New',monospace}
+
+/* ── HEADER ── */
+#header{background:#FFFFFF;border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:100}
+.logo{font-size:17px;font-weight:700;color:var(--bright)}
+.logo-acc{color:var(--amber)}
+.header-sub{font-size:10px;color:var(--muted);display:block;margin-top:2px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;transition:all .15s}
+.nav-btn:hover{color:var(--bright);background:#F3F4F6}
+.nav-btn.active{background:#EFF6FF;color:var(--blue);border-color:var(--blue)}
+
+/* ── LAYOUT ── */
+.two-col{display:flex;height:calc(100vh - 56px)}
+.sidebar{width:240px;background:#FFFFFF;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sidebar-sm{width:180px}
+.side-block{padding:10px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0}
+.side-label{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;margin-top:8px}
+.side-label:first-child{margin-top:0}
+.pill-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px}
+.pill{font-size:10px;padding:3px 7px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--muted)}
+.pill:hover{border-color:#888;color:var(--bright);background:#F3F4F6}
+.pill.active{background:#EFF6FF;color:var(--blue);border-color:var(--blue)}
+.task-list{overflow-y:auto;flex:1;padding:6px;background:#F6F8FA}
+.task-item{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:6px;border:1px solid transparent;background:#FFFFFF;color:inherit;margin-bottom:5px;box-shadow:0 1px 2px rgba(0,0,0,0.05);transition:all .1s}
+.task-item:hover{background:#F3F4F6;border-color:var(--border)}
+.task-item.active{background:#E2E8F0;border-color:#94A3B8}
+.task-year{font-size:10px;color:var(--amber);font-weight:700}
+.task-diff{font-size:9px;color:#888}
+.task-name{font-size:12px;font-weight:700;color:var(--bright);line-height:1.3;margin:3px 0}
+.task-short{font-size:11px;color:var(--muted);line-height:1.4}
+.pt-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.pt-tag{font-size:10px;padding:1px 6px;border-radius:99px}
+.main{flex:1;overflow-y:auto;padding:18px 22px;background:#F6F8FA}
+
+/* ── CARDS & BLOCKS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.sec-label{font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.tag{font-size:10px;padding:2px 7px;border-radius:99px;background:#F3F4F6;color:var(--muted);border:1px solid var(--border);display:inline-block;margin:2px 2px 2px 0}
+.mode-btns{display:flex;gap:4px;flex-wrap:wrap}
+.mode-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px}
+.mode-btn:hover{color:var(--bright);background:#F3F4F6}
+.mode-btn.active{background:#EFF6FF;color:var(--blue);border-color:var(--blue)}
+.strategy-box{background:#FFF8E7;border:1px solid #FFE0B2;border-left:3px solid var(--amber);border-radius:4px;padding:8px 12px;margin-bottom:14px;font-size:12px;line-height:1.6;color:#5c3e00}
+.cmd-block{background:#F6F8FA;border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:#1F2328;white-space:pre-wrap;line-height:1.6;margin:6px 0;display:block;font-size:12px;overflow-x:auto}
+.cmd-amber{color:var(--amber);font-weight:600}
+.cmd-green{color:var(--green);font-weight:600}
+.cmd-blue{color:var(--blue);font-weight:600}
+.tip-box{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;font-style:italic}
+.cmd-tag{font-size:10px;padding:2px 8px;border-radius:99px;border:1px solid #FFE0B2;background:#FFF8E7;color:var(--amber);font-family:monospace;font-weight:600}
+.cmd-tag:hover{background:#FFE0B2}
+.desc-pre{white-space:pre-wrap;font-family:inherit;font-size:12px;color:#1F2328;line-height:1.7}
+.pipeline-step{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px;transition:border-color .2s;box-shadow:0 1px 2px rgba(0,0,0,0.02)}
+.pipeline-step.done{border-color:#4CAF7A66;background:#F6FFFA}
+.step-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.check-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:#FFFFFF;color:var(--muted);font-size:10px;flex-shrink:0}
+.check-btn.done{background:#E6F4EA;border-color:var(--green);color:var(--green)}
+.step-title{font-size:13px;font-weight:700;color:var(--bright)}
+.step-cmd-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.example-row{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+.out-box{background:#F6F8FA;border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--green);white-space:pre-wrap;font-size:12px;margin-top:6px;font-weight:600}
+.out-box.blue{color:var(--blue)}
+.progress-bar{text-align:right;font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;font-weight:600;border-bottom:1px solid var(--border);background:#F3F4F6}
+td{padding:7px 10px;border-bottom:1px solid var(--border);color:#1F2328}
+tr:nth-child(even) td{background:#FAFAFA}
+
+/* ── VIM TABLE ── */
+.vim-row{display:flex;align-items:center;gap:16px;padding:9px 12px;border-bottom:1px solid var(--border)}
+.vim-key{font-family:monospace;font-size:13px;color:var(--amber);min-width:200px;font-weight:700}
+.vim-desc{font-size:13px;color:#1F2328}
+
+/* ── EXAM ── */
+.exam-wrap{max-width:700px;margin:40px auto;padding:0 20px}
+.exam-btn{padding:10px 24px;border-radius:6px;border:none;background:var(--amber);color:#FFFFFF;font-family:inherit;font-size:13px;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.exam-btn:hover{opacity:.9}
+.exam-btn.green{background:var(--green)}
+.exam-timer{font-size:18px;color:var(--amber);font-family:monospace;font-weight:700}
+
+/* ── HIDDEN ── */
+.hidden{display:none!important}
+
+/* ── PATTERN GRID ── */
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:24px}
+.pattern-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.05)}
+.pattern-header{padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)}
+.pattern-body{padding:12px 16px}
+.pattern-icon{font-size:22px}
+.pattern-engine{font-size:14px;font-weight:700}
+.pattern-name{font-size:13px;color:var(--bright);font-weight:700}
+.pattern-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.pattern-tasks-list button{display:block;background:none;border:none;color:var(--blue);font-size:11px;padding:2px 0;font-family:inherit;text-align:left}
+.pattern-tasks-list button:hover{text-decoration:underline}
+
+/* ── REGEX TABS ── */
+.regex-note{font-size:10px;color:var(--muted);font-style:italic}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#F6F8FA}
+::-webkit-scrollbar-thumb{background:#CDD5DC;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#94A3B8}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .two-col{flex-direction:column;height:auto}
+  .sidebar,.sidebar-sm{width:100%;height:auto;max-height:220px;border-right:none;border-bottom:1px solid var(--border)}
+  .main{padding:12px}
+  #header{padding:8px 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <span class="logo"><span class="logo-acc">$_</span> ShellOS Trainer</span>
+    <span class="header-sub">Подготовка за изпит по ОС · SE track · ФМИ</span>
+  </div>
+  <nav>
+    <button class="nav-btn active" onclick="showTab('tasks')">📋 Задачи</button>
+    <button class="nav-btn" onclick="showTab('commands')">🔧 Команди</button>
+    <button class="nav-btn" onclick="showTab('patterns')">📖 Patterns</button>
+    <button class="nav-btn" onclick="showTab('bash')">📜 Bash</button>
+    <button class="nav-btn" onclick="showTab('vim')">⌨ Vim</button>
+    <button class="nav-btn" onclick="showTab('exam')">⏱ Изпит</button>
+  </nav>
+</div>
+
+<!-- ════════════════════════════════════ TASKS TAB ════════════════════════════════════ -->
+<div id="tab-tasks" class="two-col">
+  <aside class="sidebar">
+    <div class="side-block">
+      <div class="side-label">Тип</div>
+      <div class="pill-row">
+        <button class="pill active" onclick="setFilter('type',null,this)">Всички</button>
+        <button class="pill" onclick="setFilter('type','stream',this)">Поточна обр.</button>
+        <button class="pill" onclick="setFilter('type','script',this)">Скриптове</button>
+      </div>
+      <div class="side-label">Pattern</div>
+      <div class="pill-row" id="pattern-filters"></div>
+      <div class="side-label">Година</div>
+      <div class="pill-row" id="year-filters"></div>
+      <div class="side-label">Команда</div>
+      <div class="pill-row" id="cmd-filters"></div>
+    </div>
+    <div class="task-list" id="task-list"></div>
+  </aside>
+  <main class="main" id="task-main">
+    <div style="color:var(--muted);font-size:13px;margin-top:40px;text-align:center">Избери задача от списъка вляво ←</div>
+  </main>
+</div>
+
+<!-- ════════════════════════════════════ COMMANDS TAB ════════════════════════════════════ -->
+<div id="tab-commands" class="two-col hidden">
+  <aside class="sidebar sidebar-sm">
+    <div class="side-block"><div class="side-label">Команди</div></div>
+    <div class="task-list" id="cmd-list"></div>
+  </aside>
+  <main class="main" id="cmd-main"></main>
+</div>
+
+<!-- ════════════════════════════════════ PATTERNS TAB ════════════════════════════════════ -->
+<div id="tab-patterns" class="hidden">
+  <div class="pattern-grid" id="patterns-grid"></div>
+</div>
+
+<!-- ════════════════════════════════════ BASH TAB ════════════════════════════════════ -->
+<div id="tab-bash" class="two-col hidden">
+  <aside class="sidebar sidebar-sm">
+    <div class="side-block"><div class="side-label">Секции</div></div>
+    <div class="task-list">
+      <button class="task-item active" onclick="showBash('creation',this)"><div class="task-name">🔧 Създаване</div></button>
+      <button class="task-item" onclick="showBash('variables',this)"><div class="task-name">$ Променливи</div></button>
+      <button class="task-item" onclick="showBash('constructs',this)"><div class="task-name">{ } Конструкции</div></button>
+      <button class="task-item" onclick="showBash('template',this)"><div class="task-name">📋 Шаблон</div></button>
+    </div>
+  </aside>
+  <main class="main" id="bash-main"></main>
+</div>
+
+<!-- ════════════════════════════════════ VIM TAB ════════════════════════════════════ -->
+<div id="tab-vim" class="two-col hidden">
+  <aside class="sidebar sidebar-sm">
+    <div class="side-block"><div class="side-label">Секции</div></div>
+    <div class="task-list">
+      <button class="task-item active" onclick="showVim('modes',this)"><div class="task-name">⬡ Режими</div></button>
+      <button class="task-item" onclick="showVim('navigation',this)"><div class="task-name">↔ Навигация</div></button>
+      <button class="task-item" onclick="showVim('editing',this)"><div class="task-name">✏ Редактиране</div></button>
+      <button class="task-item" onclick="showVim('commands',this)"><div class="task-name">: Команди</div></button>
+      <button class="task-item" onclick="showVim('shellTips',this)"><div class="task-name">🔧 Shell трикове</div></button>
+    </div>
+  </aside>
+  <main class="main" id="vim-main"></main>
+</div>
+
+<!-- ════════════════════════════════════ EXAM TAB ════════════════════════════════════ -->
+<div id="tab-exam" class="hidden">
+  <div class="exam-wrap">
+    <div id="exam-start" class="card" style="text-align:center;padding:40px">
+      <div style="font-size:40px;margin-bottom:12px">⏱</div>
+      <h2 style="font-size:22px;font-weight:700;color:var(--bright);margin-bottom:8px">Симулация на изпит</h2>
+      <p style="color:var(--muted);margin-bottom:6px">5 случайни задачи · таймер · без решения</p>
+      <p style="font-size:11px;color:#556;margin-bottom:24px">Работи по всяка задача като на реален изпит. Решенията се показват след края.</p>
+      <button class="exam-btn" onclick="startExam()">Започни изпита</button>
+    </div>
+    <div id="exam-running" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span id="exam-counter" style="color:var(--muted)"></span>
+        <span class="exam-timer" id="exam-timer">00:00</span>
+      </div>
+      <div class="card" id="exam-task-card" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="exam-prev-btn" class="exam-btn" style="background:transparent;border:1px solid var(--border);color:var(--muted)" onclick="examNav(-1)">← Назад</button>
+        <button id="exam-next-btn" class="exam-btn" onclick="examNav(1)">Следваща →</button>
+        <button id="exam-finish-btn" class="exam-btn green hidden" onclick="finishExam()">Завърши и виж решенията</button>
+      </div>
+    </div>
+    <div id="exam-results" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <span style="font-size:18px;font-weight:700;color:var(--bright)">Изпитът завърши</span>
+        <span class="exam-timer" id="exam-final-time"></span>
+      </div>
+      <div id="exam-solutions"></div>
+      <div style="text-align:center;margin-top:20px">
+        <button class="exam-btn" onclick="resetExam()">Опитай отново</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
+
+const PATTERNS = {
+  A:{id:"A",label:"Текстова обработка",color:"#4CAF7A",bg:"rgba(76,175,122,0.13)",icon:"⌨"},
+  B:{id:"B",label:"Файлова система",color:"#5B9BD5",bg:"rgba(91,155,213,0.13)",icon:"📂"},
+  C:{id:"C",label:"Права и достъп",color:"#E8C445",bg:"rgba(232,196,69,0.13)",icon:"🔒"},
+  D:{id:"D",label:"Процеси",color:"#E87545",bg:"rgba(232,117,69,0.13)",icon:"⚙"},
+  E:{id:"E",label:"Скрипт логика",color:"#C45BD5",bg:"rgba(196,91,213,0.13)",icon:"📜"},
+  F:{id:"F",label:"Трансформация",color:"#5BD5C4",bg:"rgba(91,213,196,0.13)",icon:"⇄"},
+};
+
+const TASKS=[
+{id:"2019-SE-01-stream",year:2019,track:"SE",type:"stream",
+ title:"Планети — най-близка от типа на най-далечната",
+ shortDesc:"Намери планетата най-близо до звездата, от типа на най-далечната.",
+ description:"Даден е файл planets.txt с колони разделени с ';':\n  name;type;distance;mass;volume;density;speed\n\nПървият ред е header.\n\nНамери:\n1. Типа на най-далечната планета (макс. distance)\n2. Сред всички планети от този тип — тази с минимална дистанция\n\nИзход: name\\tmass (разделени с таб)",
+ example:{input:"name;type;distance;mass;volume;density;speed\nearth;T;1.00;1;1;5.52;29.79\nmars;T;1.52;0.107;0.151;3.94;24.13\nneptune;I;30.07;17;57.75;1.76;5.48\nuranus;I;19.19;14.5;63.10;1.3;6.84",
+  output:"uranus\t14.5",explanation:"Най-далечна е neptune (тип I). Сред тип I най-близка е uranus."},
+ patterns:["A","F"],difficulty:2,commands:["awk","sort","head"],
+ tags:["awk филтриране","sort -n","NR>1 пропускане на header","csv с ;"],
+ pipeline:[
+  {step:"Намери типа на най-далечната планета",cmd:'farthest_type=$(awk -F\';\' \'NR>1{print $3,$2}\' planets.txt | sort -rn | head -1 | awk \'{print $2}\')',tip:"Сортираме по дистанция (поле 3) намаляващо, взимаме типа"},
+  {step:"Филтрирай планети от този тип, сортирай по дистанция",cmd:'awk -F\';\' -v t="$farthest_type" \'NR>1 && $2==t {print $3,$1,$4}\' planets.txt | sort -n | head -1',tip:"-v t=$farthest_type подава shell променлива в awk; sort -n е числово"},
+  {step:"Форматирай изхода: name TAB mass",cmd:"| awk '{print $2\"\\t\"$3}'",tip:"\\t е таб символ в awk"},
+ ],
+ solution:'farthest_type=$(awk -F\';\' \'NR>1{print $3,$2}\' planets.txt | sort -rn | head -1 | awk \'{print $2}\')\nawk -F\';\' -v t="$farthest_type" \'NR>1 && $2==t{print $3,$1,$4}\' planets.txt \\\n  | sort -n | head -1 | awk \'{print $2"\\t"$3}\'',
+ strategy:"Вход: CSV с ; | Трансформация: намери макс, после филтрирай по тип | Изход: 2 полета с таб"},
+
+{id:"2019-SE-02-stream",year:2019,track:"SE",type:"stream",
+ title:"Акаунти от СИ — home dirs в времеви интервал",
+ shortDesc:"Намери потребители от СИ, чиито home dirs са сменили ctime в интервал.",
+ description:"UNIX часовникът в началото е показвал 1551168000, в края 1551176100.\n\nНапишете команда, извеждаща разделени с таб факултетните номера и имената на потребителите от СИ, чиито home директории са променили статуса си (ctime) в зададения интервал.\n\nПриемете, че всички СИ потребители имат home под /home/SI.",
+ example:{input:"(от /etc/passwd)\ns62126:x:1016:504:Victoria Georgieva:/home/SI/s62126:/bin/bash\ns62009:x:1170:504:Denitsa Dobreva,SI,3,3:/home/SI/s62009:/bin/bash",
+  output:"62126\tVictoria Georgieva\n62009\tDenitsa Dobreva",explanation:"Факултетният номер е числовата част от username-а (без 's')"},
+ patterns:["A","B"],difficulty:2,commands:["find","awk","grep","touch"],
+ tags:["find -newer","touch -d @timestamp","awk /etc/passwd","времеви интервал"],
+ pipeline:[
+  {step:"Създай два референтни файла с touch",cmd:"touch -d @1551168000 /tmp/t_start\ntouch -d @1551176100 /tmp/t_end",tip:"touch -d @<unix_timestamp> задава mtime на файл — удобно за сравнение"},
+  {step:"Намери home dirs в интервала",cmd:"find /home/SI -maxdepth 1 -type d -newer /tmp/t_start ! -newer /tmp/t_end",tip:"-newer A ! -newer B = по-нов от A И не по-нов от B"},
+  {step:"За всяка директория намери потребителя в /etc/passwd",cmd:'while IFS= read -r dir; do\n  u=$(basename "$dir")\n  grep "^${u}:" /etc/passwd | awk -F: \'{n=$1; gsub(/[^0-9]/,"",n); name=$5; sub(/,.*/,"",name); print n"\\t"name}\'\ndone',tip:"basename взима последния компонент на пътя; gsub(/[^0-9]/,...) оставя само цифрите"},
+ ],
+ solution:'touch -d @1551168000 /tmp/t_start\ntouch -d @1551176100 /tmp/t_end\nfind /home/SI -maxdepth 1 -type d -newer /tmp/t_start ! -newer /tmp/t_end | while IFS= read -r dir; do\n  u=$(basename "$dir")\n  grep "^${u}:" /etc/passwd | awk -F: \'{n=$1; gsub(/[^0-9]/,"",n); name=$5; sub(/,.*/,"",name); print n"\\t"name}\'\ndone',
+ strategy:"Вход: /home/SI директории + /etc/passwd | Трансформация: find по ctime, join с passwd | Изход: номер TAB име"},
+
+{id:"2019-SE-03-stream",year:2019,track:"SE",type:"stream",
+ title:"Дълбочина на hardlink файл",
+ shortDesc:"Намери минималната дълбочина на файл с inode на най-скоро променения.",
+ description:"От всички файлове в home на velin:\n• Намери файла с най-скорошна промяна (mtime)\n• Намери inode-а му\n• Намери всички файлове със същия inode (hardlinks)\n• Изведи МИНИМАЛНАТА дълбочина сред тях\n\nДълбочина = брой компоненти в пътя (напр. /foo/bar/baz → 3)",
+ example:{input:"/home/velin/docs/report.txt   (inode 1234, последно променен)\n/home/velin/report.txt        (inode 1234, hardlink)",
+  output:"3",explanation:"/home/velin/report.txt има дълбочина 3 — по-малка от /home/velin/docs/report.txt (4)"},
+ patterns:["B","A"],difficulty:3,commands:["find","stat","sort","awk"],
+ tags:["inode","hardlink","stat -c %i","find -inum","дълбочина на път"],
+ pipeline:[
+  {step:"Намери файла с най-скорошна mtime",cmd:"newest=$(find /home/velin -type f -printf '%T@ %p\\n' | sort -rn | head -1 | awk '{print $2}')",tip:"-printf '%T@ %p' дава unix timestamp + път; sort -rn → низходящо"},
+  {step:"Вземи inode-а му",cmd:"inode=$(stat -c '%i' \"$newest\")",tip:"stat -c '%i' дава само inode номера"},
+  {step:"Намери всички файлове с този inode",cmd:'find /home/velin -type f -inum "$inode"',tip:"-inum търси по inode номер — така намираш всички hardlinks"},
+  {step:"Изчисли дълбочината и вземи минималната",cmd:"| awk -F'/' '{print NF-1}' | sort -n | head -1",tip:"Броят на '/' в пътя е дълбочината; -F'/' прави NF = брой полета"},
+ ],
+ solution:"newest=$(find /home/velin -type f -printf '%T@ %p\\n' | sort -rn | head -1 | awk '{print $2}')\ninode=$(stat -c '%i' \"$newest\")\nfind /home/velin -type f -inum \"$inode\" | awk -F'/' '{print NF-1}' | sort -n | head -1",
+ strategy:"Вход: файлове в home на velin | Трансформация: mtime→inode→hardlinks→дълбочини | Изход: минимална дълбочина"},
+
+{id:"2020-SE-01-stream",year:2020,track:"SE",type:"stream",
+ title:"Права на файлове с umask 0022",
+ shortDesc:"Намери файлове с права 644 (umask 0022) и добави g+w.",
+ description:"За всички файлове в home директорията, които имат права каквито биха имали при umask 0022 (т.е. 644 за файлове), промени правата им така, че group owner-ът да може да пише (добави g+w).",
+ example:{input:"-rw-r--r-- user user file.txt  (права 644)",output:"-rw-rw-r-- user user file.txt  (права 664)",explanation:"umask 0022 за файл: 666 & ~022 = 644. Добавяме g+w → 664"},
+ patterns:["B","C"],difficulty:2,commands:["find","chmod","stat"],
+ tags:["umask","chmod g+w","find -perm","права на файлове"],
+ pipeline:[
+  {step:"Намери файлове с точно права 644",cmd:"find ~ -type f -perm 644",tip:"-perm 644 търси точно тези права в осмична бройна система"},
+  {step:"Добави g+w на всеки намерен файл",cmd:"find ~ -type f -perm 644 -exec chmod g+w {} \\;",tip:"-exec chmod g+w {} \\; изпълнява chmod за всеки намерен файл"},
+ ],
+ solution:"find ~ -type f -perm 644 -exec chmod g+w {} \\;",
+ strategy:"Вход: файлове в ~ | Трансформация: филтрирай по права → добави g+w | Изход: side effect (промени права)"},
+
+{id:"2020-SE-02-stream",year:2020,track:"SE",type:"stream",
+ title:"SpaceX — товар на най-скоришния от лошия космодрум",
+ shortDesc:"Намери космодрума с най-много неуспехи, след това най-скоришния му полет.",
+ description:"Файл spacex.txt с колони разделени с '|':\n  date|launch site|outcome|payload\n\nНамери и изведи разделени с ':' успешността и товара на най-скоришния полет от космодрума с най-много неуспешни полети.",
+ example:{input:"date|launch site|outcome|payload\n1291759200|CCAFS|Success|Dragon demo\n1435438800|CCAFS|Failure|CRS-7\n1473454800|CCAFS|Failure|Amos-6\n1452981600|VAFB|Success|Jason-3",
+  output:"Failure:Amos-6",explanation:"CCAFS има 2 Failure. Най-скоришен полет от CCAFS е Amos-6 (1473454800)."},
+ patterns:["A","F"],difficulty:3,commands:["awk","sort","head"],
+ tags:["awk агрегация","sort по поле","pipe верига","csv с |"],
+ pipeline:[
+  {step:"Намери космодрума с най-много Failure",cmd:"worst=$(awk -F'|' 'NR>1 && $3==\"Failure\"{c[$2]++} END{for(s in c) print c[s],s}' spacex.txt | sort -rn | head -1 | awk '{print $2}')",tip:"Агрегираме по $2 (site) само за Failure редове"},
+  {step:"Намери най-скоришния полет от този космодрум",cmd:"awk -F'|' -v s=\"$worst\" 'NR>1 && $2==s{print $1,$3,$4}' spacex.txt | sort -rn | head -1",tip:"Сортираме по date ($1) намаляващо — най-голям timestamp = най-скоришен"},
+  {step:"Форматирай изхода: outcome:payload",cmd:"| awk '{print $2\":\"$3}'",tip:"Свързваме с двоеточие"},
+ ],
+ solution:"worst=$(awk -F'|' 'NR>1 && $3==\"Failure\"{c[$2]++} END{for(s in c) print c[s],s}' spacex.txt | sort -rn | head -1 | awk '{print $2}')\nawk -F'|' -v s=\"$worst\" 'NR>1 && $2==s{print $1,$3,$4}' spacex.txt | sort -rn | head -1 | awk '{print $2\":\"$3}'",
+ strategy:"Вход: CSV с | | Трансформация: агрегирай failures→worst site→най-скоришен | Изход: outcome:payload"},
+
+{id:"2020-SE-03-script",year:2020,track:"SE",type:"script",
+ title:"set_value.sh — редактор на config файл",
+ shortDesc:"Промени стойност на ключ в config; коментирай стария ред, добави нов.",
+ description:"Config файл има редове key = value.\n\nСкриптът приема 3 аргумента: файл, ключ, нова стойност.\n\nАко ключът присъства:\n• Коментирай стария ред (# в началото + # edited at <date> by <user>)\n• Добави нов ред key = value # added at <date> by <user> точно след стария\n\nАко ключът липсва: добави ред в края на файла.",
+ example:{input:"from = Sofia\nto = Varna\ntype = t2_1\n\n(изпълнение: ./set_value.sh config.txt to Plovdiv)",
+  output:"from = Sofia\n# to = Varna # edited at Tue Aug 25 15:48:29 EEST 2020 by human\nto = Plovdiv # added at Tue Aug 25 15:48:29 EEST 2020 by human\ntype = t2_1",
+  explanation:"Старият ред се коментира, новият се вмъква точно след него"},
+ patterns:["A","E"],difficulty:3,commands:["sed","date","grep","whoami"],
+ tags:["sed in-place","backreference \\1","date форматиране","grep -q проверка"],
+ pipeline:[
+  {step:"Вземи текущата дата и потребителя",cmd:"dt=$(date)\nuser=$(whoami)",tip:"date без аргументи дава пълен формат; whoami дава текущия потребител"},
+  {step:"Провери дали ключът съществува",cmd:'if grep -qE "^\\s*${key}\\s*=" "$file"; then',tip:"grep -q не извежда нищо, само проверява; 0=намерен, 1=не е намерен"},
+  {step:"Коментирай стария ред и вмъкни нов след него",cmd:'sed -i "s|^(\\s*${key}\\s*=.*)$|# \\1 # edited at ${dt} by ${user}\\n${key} = ${val} # added at ${dt} by ${user}|" "$file"',tip:"\\1 е backreference към целия стар ред; \\n вмъква нов ред"},
+  {step:"Ако липсва: добави в края",cmd:'else\n  echo "${key} = ${val} # added at ${dt} by ${user}" >> "$file"\nfi',tip:">> добавя в края; > би изтрил файла!"},
+ ],
+ solution:'#!/bin/bash\nfile="$1"; key="$2"; val="$3"\ndt=$(date); user=$(whoami)\nif grep -qE "^\\s*${key}\\s*=" "$file"; then\n  sed -i "s|^(\\s*${key}\\s*=.*)$|# \\1 # edited at ${dt} by ${user}\\n${key} = ${val} # added at ${dt} by ${user}|" "$file"\nelse\n  echo "${key} = ${val} # added at ${dt} by ${user}" >> "$file"\nfi',
+ strategy:"Вход: config файл + ключ + стойност | Трансформация: намери ред, коментирай, вмъкни нов | Изход: модифициран файл"},
+
+{id:"2022-SE-01-script",year:2022,track:"SE",type:"script",
+ title:"ACPI wakeup конфигурация",
+ shortDesc:"Осигури желаните wakeup настройки от config файл.",
+ description:"Файлът /proc/acpi/wakeup има колони: Device S-state Status Sysfs-node.\nЗапис на device name в него превключва enabled/disabled.\n\nConfig файлът има редове: DEVICE enabled/disabled (с # коментари).\n\nСкриптът трябва да:\n• Прочете config файла\n• За всяко устройство провери текущото му състояние\n• Ако се различава — запише device name в /proc/acpi/wakeup\n• Ако устройството не съществува — предупреждение",
+ example:{input:"# config файл\nGLAN disabled\nLID enabled",output:"(GLAN се превключва ако е enabled, LID ако е disabled)",explanation:"Записът на device name в /proc/acpi/wakeup toggle-ва статуса"},
+ patterns:["E","A"],difficulty:3,commands:["grep","awk","echo","while"],
+ tags:["/proc файлова система","toggle логика","config парсване","коментари с #"],
+ pipeline:[
+  {step:"Прочети config файла, пропусни коментари и празни редове",cmd:"grep -vE '^\\s*#|^\\s*$' \"$1\" | while IFS=' ' read -r device desired; do",tip:"grep -vE изключва редове с # или само whitespace; -E за разширен regex"},
+  {step:"Провери дали устройството съществува",cmd:'  current=$(awk -v d="$device" \'$1==d{gsub(/\\*/,""); print $3}\' /proc/acpi/wakeup)',tip:"gsub(/\\*/,...) премахва звездичката от *enabled/*disabled"},
+  {step:"Ако не съществува — предупреди и продължи",cmd:'  [ -z "$current" ] && { echo "ПРЕДУПРЕЖДЕНИЕ: $device не съществува" >&2; continue; }',tip:"continue прескача към следващата итерация; >&2 изпраща към stderr"},
+  {step:"Ако текущото се различава от желаното — toggle",cmd:'  [ "$current" != "$desired" ] && echo "$device" > /proc/acpi/wakeup\ndone',tip:"Записът на device name превключва статуса"},
+ ],
+ solution:'#!/bin/bash\ngrep -vE \'^\\s*#|^\\s*$\' "$1" | while IFS=\' \' read -r device desired; do\n  desired=$(echo "$desired" | sed \'s/#.*//\' | tr -d \' \')\n  current=$(awk -v d="$device" \'$1==d{gsub(/\\*/,""); print $3}\' /proc/acpi/wakeup)\n  if [ -z "$current" ]; then\n    echo "ПРЕДУПРЕЖДЕНИЕ: устройство \'$device\' не е намерено" >&2\n    continue\n  fi\n  [ "$current" != "$desired" ] && echo "$device" > /proc/acpi/wakeup\ndone',
+ strategy:"Вход: config файл | Трансформация: parse→check→toggle ако трябва | Изход: side effects"},
+
+{id:"2023-SE-01-script",year:2023,track:"SE",type:"script",
+ title:"redact.sh — цензура на забранени думи",
+ shortDesc:"Замени забранени думи с * по брой символи; само цели думи.",
+ description:"Първи аргумент: файл с забранени думи (по една на ред).\nВтори аргумент: директория — обработи всички .txt файлове рекурсивно.\n\nЗамени всяко цялостно срещане на забранена дума с * × дължина.\nБонус: case-insensitive.",
+ example:{input:"bad_words.lst: cake, shake, banana\nфайл: to make banana shake, we start",output:"to make ****** *****, we start",explanation:"banana (6 букви) → ******, shake (5 букви) → *****"},
+ patterns:["A","E"],difficulty:2,commands:["sed","find","printf","mapfile"],
+ tags:["sed word boundaries","\\b цяла дума","printf повторение","mapfile масив"],
+ pipeline:[
+  {step:"Прочети забранените думи в масив",cmd:'mapfile -t words < "$1"',tip:"mapfile чете редовете на файл директно в bash масив"},
+  {step:"За всяка дума изгради замяната (звездички)",cmd:'for word in "${words[@]}"; do\n  stars=$(printf \'%0.s*\' $(seq 1 ${#word}))',tip:"${#word} дава дължината на стринга; printf '%0.s*' повтаря *"},
+  {step:"Приложи замяната в-място върху всички .txt файлове",cmd:'  find "$2" -name \'*.txt\' -type f | while IFS= read -r f; do\n    sed -i "s/\\b${word}\\b/${stars}/gI" "$f"\n  done\ndone',tip:"\\b е word boundary; флаг I прави case-insensitive (GNU sed)"},
+ ],
+ solution:'#!/bin/bash\nmapfile -t words < "$1"\nfind "$2" -name "*.txt" -type f | while IFS= read -r f; do\n  for word in "${words[@]}"; do\n    stars=$(printf \'%0.s*\' $(seq 1 ${#word}))\n    sed -i "s/\\b${word}\\b/${stars}/gI" "$f"\n  done\ndone',
+ strategy:"Вход: списък с думи + директория | Трансформация: за всяка дума→ sed замяна в-място | Изход: модифицирани файлове"},
+
+{id:"2023-SE-04-script",year:2023,track:"SE",type:"script",
+ title:"dedup.sh — дедупликация с hardlinks",
+ shortDesc:"Намери еднакви файлове по sha256, hardlink ги, отчети освободеното място.",
+ description:"Скриптът приема директория.\nНамери всички обикновени файлове с еднакъв sha256 hash.\nЗа всяка група дублирани файлове: направи ги hardlinks към едно копие.\nОтчети: колко групи са дедупликирани и колко байта са освободени.",
+ example:{input:"dir/ съдържа:\n  a.txt (hash: abc, 1000 байта)\n  b.txt (hash: abc, 1000 байта)\n  c.txt (hash: xyz, 500 байта)",output:"Дедупликирани 1 групи, освободено 1000 байта",explanation:"a.txt и b.txt са еднакви → hardlink, освободен 1000 байта"},
+ patterns:["B","F"],difficulty:2,commands:["sha256sum","find","ln","stat"],
+ tags:["sha256sum","hardlink ln -f","stat -c %s","асоциативен масив"],
+ pipeline:[
+  {step:"Изчисли sha256 за всички файлове",cmd:"find \"$dir\" -type f -exec sha256sum {} \\;",tip:"Изходът е: <hash>  <path> (две интервала разделят)"},
+  {step:"Групирай пътищата по хеш в асоциативен масив",cmd:'declare -A groups\nwhile read -r hash path; do\n  groups["$hash"]+="$path\\n"\ndone < hashes.txt',tip:"declare -A създава асоциативен масив; += конкатенира"},
+  {step:"За група с >1 файл: hardlink и изчисли освободеното",cmd:'for hash in "${!groups[@]}"; do\n  mapfile -t files <<< "$(echo -e "${groups[$hash]}" | grep -v \'^$\')"\n  [ ${#files[@]} -lt 2 ] && continue\n  canonical="${files[0]}"\n  for dup in "${files[@]:1}"; do\n    freed=$((freed + $(stat -c \'%s\' "$dup")))\n    ln -f "$canonical" "$dup"\n  done\ndone',tip:"ln -f принудително прави hardlink; stat -c '%s' дава размера в байти"},
+ ],
+ solution:'#!/bin/bash\ndir="$1"; declare -A groups; freed=0; groups_count=0\nwhile IFS=\'  \' read -r hash path; do\n  groups["$hash"]+="$path\\n"\ndone < <(find "$dir" -type f -exec sha256sum {} \\;)\nfor hash in "${!groups[@]}"; do\n  mapfile -t files <<< "$(echo -e "${groups[$hash]}" | grep -v \'^$\')"\n  [ "${#files[@]}" -lt 2 ] && continue\n  canonical="${files[0]}"\n  for dup in "${files[@]:1}"; do\n    freed=$((freed + $(stat -c \'%s\' "$dup")))\n    ln -f "$canonical" "$dup"\n  done\n  groups_count=$((groups_count+1))\ndone\necho "Дедупликирани $groups_count групи, освободено $freed байта"',
+ strategy:"Вход: директория | Трансформация: sha256 групиране → hardlink дублираните | Изход: статистика"},
+
+{id:"2024-SE-01-script",year:2024,track:"SE",type:"script",
+ title:"replace.sh — атомарна замяна на думи",
+ shortDesc:"Замени думи в файлове; аргументи в произволен ред; без двойна замяна.",
+ description:"replace.sh приема аргументи в произволен ред:\n• -R<дума1>=<дума2> — замяна\n• всеки друг аргумент — файл\n\nПравила:\n• Case sensitive, само цели думи (\\b)\n• Вече заменена дума НЕ се заменя отново\n  (swap: -REastasia=Eurasia -REurasia=Eastasia трябва да работи)\n• Бонус: пропускай редове с #",
+ example:{input:'propaganda.txt: "Our ally Eastasia is helping us against Eurasia."\n./replace.sh -REastasia=Eurasia -REurasia=Eastasia propaganda.txt',output:"Our ally Eurasia is helping us against Eastasia.",explanation:"Двуфазова замяна: word→placeholder, после placeholder→word2"},
+ patterns:["A","E"],difficulty:3,commands:["sed","pwgen","declare"],
+ tags:["pwgen placeholder","word boundaries \\b","аргументи в произволен ред","двуфазова замяна"],
+ pipeline:[
+  {step:"Раздели аргументите на замени и файлове",cmd:'declare -a replacements files\nfor arg in "$@"; do\n  case "$arg" in\n    -R*) replacements+=("${arg#-R}") ;;\n    *)   files+=("$arg") ;;\n  esac\ndone',tip:"${arg#-R} премахва префикса -R от аргумента"},
+  {step:"Генерирай уникален placeholder за всяка дума1",cmd:'declare -A placeholders\nfor r in "${replacements[@]}"; do\n  placeholders["${r%%=*}"]=$(pwgen 32 1)\ndone',tip:"${r%%=*} взима частта преди = (думата); pwgen генерира случаен стринг"},
+  {step:"Фаза 1: замени дума1 → placeholder",cmd:'for r in "${replacements[@]}"; do\n  w1="${r%%=*}"; ph="${placeholders[$w1]}"\n  sed -i "s/\\b${w1}\\b/${ph}/g" "$file"\ndone',tip:"\\b е граница на дума; замяната е глобална (g)"},
+  {step:"Фаза 2: замени placeholder → дума2",cmd:'for r in "${replacements[@]}"; do\n  ph="${placeholders[${r%%=*}]}"; w2="${r##*=}"\n  sed -i "s/${ph}/${w2}/g" "$file"\ndone',tip:"${r##*=} взима частта след = (новата дума)"},
+ ],
+ solution:'#!/bin/bash\ndeclare -a replacements files; declare -A placeholders\nfor arg in "$@"; do\n  case "$arg" in -R*) replacements+=("${arg#-R}") ;; *) files+=("$arg") ;; esac\ndone\nfor r in "${replacements[@]}"; do placeholders["${r%%=*}"]=$(pwgen 32 1); done\nfor file in "${files[@]}"; do\n  for r in "${replacements[@]}"; do\n    sed -i "s/\\b${r%%=*}\\b/${placeholders[${r%%=*}]}/g" "$file"\n  done\n  for r in "${replacements[@]}"; do\n    sed -i "s/${placeholders[${r%%=*}]}/${r##*=}/g" "$file"\n  done\ndone',
+ strategy:"Вход: -R флагове + файлове | Трансформация: 2-фазова замяна с placeholder | Изход: модифицирани файлове"},
+
+{id:"2024-SE-04-script",year:2024,track:"SE",type:"script",
+ title:"bake.sh — build система като make",
+ shortDesc:"Парсни bakefile, реши зависимости рекурсивно, rebuild само ако е нужно.",
+ description:"bakefile съдържа редове: <target>:<dep1> <dep2>:<команда>\n\nАлгоритъм:\n1. Ако target има правило: build всички deps рекурсивно\n2. После rebuild target само ако dep е по-нов от него (-nt)\n3. Ако няма правило: target трябва да съществува иначе грешка",
+ example:{input:"chapter1.pdf:chapter1.md:pandoc -o chapter1.pdf chapter1.md\nbook.pdf:chapter1.pdf:pdfunite chapter1.pdf book.pdf",output:"(изпълняват се командите в правилния ред)",explanation:"book.pdf зависи от chapter1.pdf, което зависи от chapter1.md"},
+ patterns:["E","B"],difficulty:3,commands:["grep","cut","-nt comparison"],
+ tags:["рекурсия в bash","функции","IFS парсване","-nt по-нов от"],
+ pipeline:[
+  {step:"Дефинирай рекурсивна функция build()",cmd:'build() {\n  local target="$1"\n  local rule=$(grep "^${target}:" bakefile)\n  [ -z "$rule" ] && { [ -e "$target" ] || { echo "Грешка: $target липсва" >&2; exit 1; }; return; }',tip:"local прави променливата локална за функцията; return без число = exit 0"},
+  {step:"Извлечи deps и команда, build рекурсивно",cmd:'  local deps=$(echo "$rule" | cut -d: -f2)\n  local cmd=$(echo "$rule" | cut -d: -f3-)\n  for dep in $deps; do build "$dep"; done',tip:"cut -d: -f3- взима всичко от 3-то поле нататък (командата може да съдържа :)"},
+  {step:"Rebuild само ако dep е по-нов от target",cmd:'  local rebuild=false\n  for dep in $deps; do\n    [ ! -e "$target" ] && rebuild=true\n    [ "$dep" -nt "$target" ] && rebuild=true\n  done\n  $rebuild && eval "$cmd"\n}',tip:"-nt (newer than) сравнява mtime на два файла; eval изпълнява стринг като команда"},
+ ],
+ solution:'#!/bin/bash\nbuild() {\n  local target="$1"\n  local rule=$(grep "^${target}:" bakefile)\n  if [ -z "$rule" ]; then\n    [ -e "$target" ] || { echo "Грешка: $target не съществува" >&2; exit 1; }\n    return\n  fi\n  local deps=$(echo "$rule" | cut -d: -f2)\n  local cmd=$(echo "$rule" | cut -d: -f3-)\n  for dep in $deps; do build "$dep"; done\n  local rebuild=false\n  for dep in $deps; do\n    [ ! -e "$target" ] && rebuild=true\n    [ "$dep" -nt "$target" ] && rebuild=true\n  done\n  $rebuild && eval "$cmd"\n}\nbuild "$1"',
+ strategy:"Вход: bakefile + target | Трансформация: рекурсия + -nt сравнение | Изход: rebuild ако е нужно"},
+
+{id:"2025-SE-02-script",year:2025,track:"SE",type:"script",
+ title:"manage.sh — мениджър на сървиси",
+ shortDesc:"Стартирай/спирай фонови процеси с PID файлове.",
+ description:"manage.sh работи с файлове в $SVC_DIR. Всеки описва сървис:\n  name: <name>\n  pidfile: <path>\n  outfile: <path>\n  comm: <команда>\n\nПодкоманди:\n• start <name> — стартира фонов процес, записва PID, redirect output\n• stop <name> — изпраща SIGTERM\n• running — списък на живите сървиси (сортиран)\n• cleanup — изтрива PID файлове на мъртви процеси",
+ example:{input:"SVC_DIR=/etc/services.d\n./manage.sh start sleeper",output:"(sleeper стартира, PID се записва в pidfile)",explanation:"Процесът работи фоново; kill -0 проверява дали е жив"},
+ patterns:["D","E"],difficulty:3,commands:["kill","bash","grep","sort"],
+ tags:["background &","kill -0 проверка","$! PID","SIGTERM","pidfile"],
+ pipeline:[
+  {step:"Парсни service файл (редът без значение)",cmd:'parse_svc() {\n  while IFS= read -r line; do\n    key="${line%%: *}"; val="${line#*: }"\n    case "$key" in\n      name) SVC_NAME="$val" ;; pidfile) SVC_PID="$val" ;;\n      outfile) SVC_OUT="$val" ;; comm) SVC_COMM="$val" ;;\n    esac\n  done < "$1"\n}',tip:"${line%%: *} взима частта преди : (ключа); ${line#*: } взима частта след : (стойността)"},
+  {step:"start: провери дали вече работи",cmd:'f=$(grep -rl "name: $2" "$SVC_DIR"); parse_svc "$f"\n[ -f "$SVC_PID" ] && kill -0 "$(cat $SVC_PID)" 2>/dev/null && exit 0',tip:"kill -0 не изпраща сигнал, само проверява дали процесът съществува; 2>/dev/null скрива грешки"},
+  {step:"start: стартирай фоново и запиши PID",cmd:'bash -c "$SVC_COMM" >> "$SVC_OUT" 2>&1 &\necho $! > "$SVC_PID"',tip:"& изпраща процеса фоново; $! е PID на последния фонов процес"},
+  {step:"running: провери всеки сървис",cmd:'for f in "$SVC_DIR"/*; do parse_svc "$f"\n  [ -f "$SVC_PID" ] && kill -0 "$(cat $SVC_PID)" 2>/dev/null && echo "$SVC_NAME"\ndone | sort',tip:"sort за лексикографски ред"},
+ ],
+ solution:'#!/bin/bash\nparse_svc() {\n  SVC_NAME=""; SVC_PID=""; SVC_OUT=""; SVC_COMM=""\n  while IFS= read -r line; do\n    key="${line%%: *}"; val="${line#*: }"\n    case "$key" in name) SVC_NAME="$val";; pidfile) SVC_PID="$val";;\n      outfile) SVC_OUT="$val";; comm) SVC_COMM="$val";; esac\n  done < "$1"\n}\ncase "$1" in\n  start)\n    f=$(grep -rl "name: $2" "$SVC_DIR"); parse_svc "$f"\n    [ -f "$SVC_PID" ] && kill -0 "$(cat $SVC_PID)" 2>/dev/null && exit 0\n    bash -c "$SVC_COMM" >> "$SVC_OUT" 2>&1 & echo $! > "$SVC_PID" ;;\n  stop)\n    f=$(grep -rl "name: $2" "$SVC_DIR"); parse_svc "$f"\n    kill -SIGTERM "$(cat $SVC_PID)" ;;\n  running)\n    for f in "$SVC_DIR"/*; do parse_svc "$f"\n      [ -f "$SVC_PID" ] && kill -0 "$(cat $SVC_PID)" 2>/dev/null && echo "$SVC_NAME"\n    done | sort ;;\n  cleanup)\n    for f in "$SVC_DIR"/*; do parse_svc "$f"\n      kill -0 "$(cat $SVC_PID)" 2>/dev/null || rm -f "$SVC_PID"\n    done ;;\nesac',
+ strategy:"Вход: service файл | Трансформация: parse→check→start/stop | Изход: side effects"},
+
+{id:"2025-SE-06-script",year:2025,track:"SE",type:"script",
+ title:"flatten.sh — дедупликация с symlinks към .data/",
+ shortDesc:"Премести файлове в .data/ с sha256 имена, замени оригиналите с relative symlinks.",
+ description:"Скриптът приема директория <DIR>.\n\nПравила:\n• Премести всички regular files в <DIR>/.data/<sha256hash>\n• Ако hash вече съществува в .data/ — не презаписвай\n• Замени оригиналните файлове с relative symlinks\n• Идемпотентен (може да се изпълни многократно безопасно)",
+ example:{input:"dir/\n  subdir/\n    report.txt (sha256: abc123...)",output:"dir/\n  .data/\n    abc123...  (копие)\n  subdir/\n    report.txt -> ../../.data/abc123...  (symlink)",explanation:"Symlink-ът е относителен за да работи след преместване на dir/"},
+ patterns:["B","E"],difficulty:3,commands:["sha256sum","ln","find","realpath","mkdir"],
+ tags:["sha256sum","relative symlink","realpath --relative-to","идемпотентност","find -not -path"],
+ pipeline:[
+  {step:"Създай .data/ ако липсва",cmd:'mkdir -p "$DIR/.data"',tip:"-p не дава грешка ако директорията вече съществува"},
+  {step:"Намери всички regular файлове извън .data/",cmd:'find "$DIR" -not -path "$DIR/.data/*" -type f',tip:"-not -path изключва поддиректорията .data/"},
+  {step:"Пропусни файлове, които вече са symlinks (идемпотентност)",cmd:'[ -L "$file" ] && continue',tip:"-L проверява дали е symlink; continue прескача към следващия"},
+  {step:"Изчисли hash, копирай ако липсва, замени с symlink",cmd:'hash=$(sha256sum "$file" | awk \'{print $1}\')\ndest="$DIR/.data/$hash"\n[ -e "$dest" ] || cp "$file" "$dest"\nrm "$file"\nrelpath=$(realpath --relative-to="$(dirname "$file")" "$dest")\nln -s "$relpath" "$file"',tip:"realpath --relative-to дава относителен път между две директории"},
+ ],
+ solution:'#!/bin/bash\nDIR="$1"; mkdir -p "$DIR/.data"\nfind "$DIR" -not -path "$DIR/.data/*" -type f | while IFS= read -r file; do\n  [ -L "$file" ] && continue\n  hash=$(sha256sum "$file" | awk \'{print $1}\')\n  dest="$DIR/.data/$hash"\n  [ -e "$dest" ] || cp "$file" "$dest"\n  rm "$file"\n  relpath=$(realpath --relative-to="$(dirname "$file")" "$dest")\n  ln -s "$relpath" "$file"\ndone',
+ strategy:"Вход: директория | Трансформация: hash→copy to .data→replace с symlink | Изход: преструктурирана директория"},
+
+{id:"2026-SE-01-script",year:2026,track:"SE",type:"script",
+ title:"orange-cat.sh — рекурсивен !include",
+ shortDesc:"Изпиши файл, вмъквайки съдържанието на !include директивите рекурсивно.",
+ description:"Скриптът приема файл и изписва съдържанието му на stdout.\nВсеки ред от вида '!include: <path>' се заменя с съдържанието на посочения файл.\n\nПътищата са релативни спрямо директорията на текущия файл.\nРекурсивно — !include в включени файлове също се обработват.\n\nБонус: при невъзможност за четене или цикъл → грешка.",
+ example:{input:'main.txt:\n  Hello\n  !include: greet.txt\n  Bye\ngreet.txt:\n  World',output:"Hello\nWorld\nBye",explanation:"!include: greet.txt се заменя с 'World'"},
+ patterns:["E","B"],difficulty:3,commands:["while","read","dirname","realpath"],
+ tags:["рекурсия","dirname","realpath","include директиви","четене ред по ред"],
+ pipeline:[
+  {step:"Дефинирай рекурсивна функция process_file()",cmd:'process_file() {\n  local file\n  file="$(realpath "$1" 2>/dev/null)" || { echo "Грешка: $1" >&2; exit 1; }\n  local dir; dir="$(dirname "$file")"',tip:"realpath дава абсолютния път; dirname дава директорията"},
+  {step:"Четй ред по ред и обработвай !include",cmd:'  while IFS= read -r line || [ -n "$line" ]; do\n    if [[ "$line" == "!include: "* ]]; then\n      local inc="${line#!include: }"\n      process_file "${dir}/${inc}"\n    else\n      echo "$line"\n    fi\n  done < "$file"\n}',tip:'IFS= запазва whitespace; || [ -n "$line" ] обработва последен ред без newline'},
+ ],
+ solution:'#!/bin/bash\nprocess_file() {\n  local file\n  file="$(realpath "$1" 2>/dev/null)" || { echo "Грешка: не може да се прочете $1" >&2; exit 1; }\n  local dir; dir="$(dirname "$file")"\n  while IFS= read -r line || [ -n "$line" ]; do\n    if [[ "$line" == "!include: "* ]]; then\n      local inc="${line#!include: }"\n      process_file "${dir}/${inc}"\n    else\n      echo "$line"\n    fi\n  done < "$file"\n}\nprocess_file "$1"',
+ strategy:"Вход: файл с !include директиви | Трансформация: рекурсивно разгъване | Изход: обединен текст"},
+];
+
+// ════ COMMANDS DATA ════
+const COMMANDS=[
+{name:"awk",category:"A",desc:"Мощен инструмент за обработка на текст по полета и шаблони.",syntax:"awk [OPTIONS] 'PROGRAM' [FILE...]",
+ sections:[
+  {title:"Структура и полета",examples:[
+   {code:"awk '{print $1, $3}' file",out:"поле1 поле3",note:"$1,$2,... са полета; $0 = целият ред; $NF = последното поле"},
+   {code:"awk -F: '{print $1}' /etc/passwd",out:"root\ndaemon\n...",note:"-F задава разделителя"},
+   {code:"awk -F';' '{print $NF}' data.csv",out:"(последна колона)",note:"NF = брой полета → $NF е последното"},
+   {code:"awk 'NR>1{print}' file",out:"(без първия ред)",note:"NR е номерът на текущия ред; NR>1 пропуска header"},
+   {code:"awk 'NR==3{print}' file",out:"(само 3-ти ред)",note:"Точен ред по номер"},
+  ]},
+  {title:"BEGIN и END блокове",examples:[
+   {code:"awk 'BEGIN{print \"Начало\"} {print} END{print \"Край\"}' f",out:"Начало\n(редове)\nКрай",note:"BEGIN → преди файла; END → след всички редове"},
+   {code:"awk 'BEGIN{sum=0} {sum+=$2} END{print sum}' data",out:"(сумата от поле 2)",note:"Натрупване в END"},
+   {code:"awk 'BEGIN{FS=\":\"} {print $1}' /etc/passwd",out:"(usernames)",note:"FS в BEGIN вместо -F"},
+  ]},
+  {title:"Агрегация и асоциативни масиви",examples:[
+   {code:"awk '{count[$1]++} END{for(k in count) print k, count[k]}' f",out:"word1 5\nword2 3",note:"Брой срещания по ключ — класически pattern"},
+   {code:"awk '{sum[$1]+=$2} END{for(k in sum) print k, sum[k]}' f",out:"group1 150\ngroup2 87",note:"Сума по група"},
+   {code:"awk '!seen[$0]++' file",out:"(уникални редове, запазва ред)",note:"Класически трик за uniq без sort"},
+   {code:"awk -F: '{users[$4]+=$3} END{for(g in users) print g, users[g]}' /etc/passwd",out:"(сума от UID по GID)",note:"Агрегиране по GID от /etc/passwd"},
+  ]},
+  {title:"Вградени функции",examples:[
+   {code:"awk '{print length($0)}' file",out:"23\n15\n...",note:"Дължина на всеки ред"},
+   {code:"awk '{print toupper($1)}' file",out:"ROOT\nDAEMON\n...",note:"Конвертиране в главни букви"},
+   {code:"awk '{n=split($0,a,\":\"); print a[1], a[n]}' f",out:"first last",note:"split разбива стринг на масив"},
+   {code:"awk '{gsub(/[0-9]/,\"*\"); print}' file",out:"(цифрите заменени с *)",note:"gsub = global substitution (замени всички)"},
+   {code:"awk '{printf \"%-20s %5d\\n\", $1, $2}' file",out:"name                   42",note:"printf за форматиран изход с подравняване"},
+   {code:"awk '{sub(/^\\s+/,\"\"); print}' file",out:"(без водещи интервали)",note:"sub = само ПЪРВОТО срещане (за разлика от gsub)"},
+  ]},
+  {title:"Условия и цикли",examples:[
+   {code:"awk '{if($1>10) print \"big\"; else print \"small\"}' f",out:"big\nsmall\n...",note:"if/else — синтаксисът е като в C"},
+   {code:"awk '{for(i=1;i<=NF;i++) printf $i\" \"; print \"\"}' f",out:"(полетата с интервал)",note:"for loop по всички полета на реда"},
+   {code:"awk 'BEGIN{i=1; while(i<=5){print i; i++}}' /dev/null",out:"1\n2\n3\n4\n5",note:"while loop в BEGIN (без входен файл)"},
+  ]},
+  {title:"Типични комбинации от изпита",examples:[
+   {code:"awk -F'|' 'NR>1 && $3==\"Failure\"{c[$2]++} END{for(s in c) print c[s],s}' f | sort -rn | head -1",out:"3 CCAFS",note:"2020-SE-02: намери сайта с най-много failures"},
+   {code:"awk '{n=$1; gsub(/[^0-9]/,\"\",n); print n}' file",out:"62126\n62009\n...",note:"Извлечи само цифрите от поле (за факултетни номера)"},
+   {code:"awk -v t=\"$type\" '$2==t{print $3,$1}' planets.txt | sort -n | head -1",out:"1.00 earth",note:"-v подава shell променлива в awk програмата"},
+   {code:"awk -F: '$3>=1000{print $1}' /etc/passwd",out:"(само локални потребители)",note:"UID >= 1000 = локален потребител в Linux"},
+   {code:"awk -F'/' '{print NF-1}' paths.txt",out:"3\n4\n2",note:"Брой компоненти в пат (дълбочина) — 2019-SE-03"},
+  ]},
+ ]},
+{name:"grep",category:"A",desc:"Търси редове съвпадащи с шаблон. Основен инструмент за филтриране.",syntax:"grep [OPTIONS] PATTERN [FILE...]",
+ sections:[
+  {title:"Основни опции с примери",examples:[
+   {code:"grep 'error' log.txt",out:"line with error here",note:"Базово търсене — изважда съвпадащите редове"},
+   {code:"grep -E '[0-9]+' file",out:"(редове с поне 1 цифра)",note:"-E = Extended regex (ERE) — по-мощен синтаксис"},
+   {code:"grep -v 'root' /etc/passwd",out:"(всички без 'root')",note:"-v инвертира — изключва съвпаденията"},
+   {code:"grep -c 'error' log.txt",out:"42",note:"-c брои само броя на съвпадащите редове"},
+   {code:"grep -l 'TODO' *.sh",out:"fix.sh\nclean.sh",note:"-l показва само имената на файловете (не редовете)"},
+   {code:"grep -r 'pattern' ./dir/",out:"dir/file1.txt:matched line",note:"-r рекурсивно търсене в директория"},
+   {code:"grep -w 'cat' file",out:"(само 'cat' като цяла дума)",note:"-w = whole word (еквивалентно на \\bcat\\b)"},
+   {code:"grep -o '[0-9]*' file",out:"123\n456",note:"-o показва само съвпадащата част от реда"},
+   {code:"grep -i 'Error' file",out:"(case insensitive)",note:"-i без значение дали е главна/малка буква"},
+   {code:"grep -n 'pattern' file",out:"3:matched line",note:"-n показва номера на реда пред всяко съвпадение"},
+   {code:"grep -A 2 'error' log",out:"(реда + 2 след него)",note:"-A N = after N lines; -B N = before; -C N = context"},
+  ]},
+  {title:"Комбинации от изпита",examples:[
+   {code:"grep -E '[02468]' file | grep -v '[a-w]'",out:"(редове с четна цифра, без a-w)",note:"2019-SE-01: двойно филтриране с pipe"},
+   {code:"grep -E '^s[0-9]+:.*:504:' /etc/passwd",out:"(СИ студенти по GID)",note:"Търсене по pattern в /etc/passwd"},
+   {code:"grep -vE '^\\s*#|^\\s*$' config",out:"(без коментари и празни редове)",note:"Почистване на config файл — 2022-SE-01 pattern"},
+   {code:"grep -rl 'name: sleeper' $SVC_DIR",out:"/etc/svc.d/sleeper.conf",note:"-rl = рекурсивно, само имена на файлове — 2025-SE-02"},
+   {code:"grep -qE '^\\s*${key}\\s*=' file && echo found",out:"found",note:"-q = quiet; само проверява, не извежда нищо"},
+  ]},
+ ]},
+{name:"sed",category:"A",desc:"Stream Editor — редактира текст ред по ред. Мощен за замяна, изтриване, вмъкване.",syntax:"sed [OPTIONS] 'SCRIPT' [FILE...]",
+ sections:[
+  {title:"Основни команди",examples:[
+   {code:"sed 's/old/new/' file",out:"(замяна на ПЪРВОТО 'old' на всеки ред)",note:"s = substitute; без g = само първото срещане"},
+   {code:"sed 's/old/new/g' file",out:"(замяна на ВСИЧКИ 'old')",note:"g = global — замени всички на реда"},
+   {code:"sed -i 's/old/new/g' file",out:"(промяна директно в файла)",note:"-i = in-place; внимавай — пренаписва файла!"},
+   {code:"sed -n '/pattern/p' file",out:"(само редовете с pattern)",note:"-n подтиска стандартния изход; p = print explicit"},
+   {code:"sed '/pattern/d' file",out:"(без редовете с pattern)",note:"d = delete matching lines"},
+   {code:"sed 's/^/#/' file",out:"(# пред всеки ред)",note:"^ = начало на ред — добавя # коментар"},
+   {code:"sed 's/\\bword1\\b/placeholder/g' file",out:"(само цяла дума 'word1')",note:"\\b = word boundary (граница на дума)"},
+   {code:"sed -i 's/\\(key=\\).*/\\1newval/' config",out:"key=newval",note:"Замяна на стойност в config файл"},
+  ]},
+  {title:"Backreferences и групи",examples:[
+   {code:"sed 's/\\(foo\\)/[\\1]/' file",out:"[foo] остатък",note:"\\1 backreference (BRE синтаксис с \\( \\))"},
+   {code:"sed -E 's/(foo)/[\\1]/' file",out:"[foo] остатък",note:"-E за ERE — по-четим синтаксис с ( )"},
+   {code:"sed 's/^\\(.*\\)$/# \\1 # edited/' file",out:"# original line # edited",note:"Коментиране на ред — 2020-SE-03 pattern"},
+  ]},
+  {title:"Вмъкване след/преди ред",examples:[
+   {code:"sed '/pattern/a\\new line after' file",out:"(нов ред след pattern)",note:"a = append after matching line"},
+   {code:"sed '/pattern/i\\new line before' file",out:"(нов ред преди pattern)",note:"i = insert before matching line"},
+   {code:"sed 's/pattern/replacement\\nnew line/' file",out:"(\\n вмъква нов ред в replacement)",note:"\\n в replacement string"},
+  ]},
+ ]},
+{name:"find",category:"B",desc:"Търси файлове и директории по различни критерии. Може да изпълнява команди върху намерените.",syntax:"find [PATH] [OPTIONS] [EXPRESSION]",
+ sections:[
+  {title:"Тип и основно търсене",examples:[
+   {code:"find . -type f",out:"./file1.txt\n./dir/file2.sh",note:"-type f = само обикновени файлове"},
+   {code:"find . -type d",out:"./dir\n./dir/subdir",note:"-type d = само директории"},
+   {code:"find . -type l",out:"./link -> target",note:"-type l = само symlinks"},
+   {code:"find . -name '*.sh'",out:"./script.sh\n./run.sh",note:"-name = по glob шаблон (case sensitive)"},
+   {code:"find . -name '*.log' -o -name '*.txt'",out:"(и .log и .txt файлове)",note:"-o = OR между условия"},
+   {code:"find . -not -name '*.tmp'",out:"(всичко без .tmp)",note:"-not = NOT условие; може и ! вместо -not"},
+  ]},
+  {title:"Вреже, размер и metadata",examples:[
+   {code:"find . -type f -mtime +7",out:"(файлове по-стари от 7 дни)",note:"-mtime +N = по-стар от N дни; -mtime -N = по-нов"},
+   {code:"find . -type f -newer ref.txt",out:"(по-нови от ref.txt)",note:"-newer = по-нов от референтен файл (по mtime)"},
+   {code:"find . -type f -size 0",out:"(празни файлове)",note:"-size 0 = нулева дължина"},
+   {code:"find . -type f -size +1M",out:"(файлове > 1 MB)",note:"-size +N[ckMG]: c=bytes, k=KB, M=MB, G=GB"},
+   {code:"find . -type f -inum 12345",out:"(файлове с inode 12345)",note:"-inum = по inode номер — намираш всички hardlinks"},
+   {code:"find . -type f -links +1",out:"(файлове с >1 hardlink)",note:"-links N = брой hardlinks"},
+   {code:"find /home/SI -maxdepth 1 -type d",out:"/home/SI/s62126\n...",note:"-maxdepth 1 = само директни поддиректории"},
+  ]},
+  {title:"Права, собственост и изпълнение",examples:[
+   {code:"find . -perm 644",out:"(точно права 644)",note:"-perm 644 = точно тези права в осмична бройна"},
+   {code:"find . -user pesho",out:"(файлове на pesho)",note:"-user = по собственик"},
+   {code:"find . -type f -exec chmod 644 {} \\;",out:"(chmod за всеки намерен)",note:"-exec CMD {} \\; изпълнява CMD за всеки файл"},
+   {code:"find . -type f -print0 | xargs -0 grep 'pat'",out:"(grep в намерените)",note:"-print0 + xargs -0 = безопасно с интервали в имена"},
+   {code:"find . -not -path './.data/*' -type f",out:"(всичко извън .data/)",note:"-not -path изключва директория — 2025-SE-06 pattern"},
+  ]},
+ ]},
+{name:"sort",category:"A",desc:"Сортира редовете на текстов вход по различни критерии.",syntax:"sort [OPTIONS] [FILE...]",
+ sections:[
+  {title:"Основни опции",examples:[
+   {code:"sort file",out:"(лексикографски ред по подразбиране)",note:"Текстово сортиране — 1,10,2,20 (не числово!)"},
+   {code:"sort -n file",out:"(числов ред: 1,2,10,20)",note:"-n = числово сортиране"},
+   {code:"sort -r file",out:"(обратен ред)",note:"-r = reverse"},
+   {code:"sort -rn file",out:"(числово, намаляващо)",note:"Комбинация -r + -n = от голямо към малко"},
+   {code:"sort -u file",out:"(само уникални редове)",note:"-u = unique (сортира + дедупликира)"},
+   {code:"sort -t: -k3 -n /etc/passwd",out:"(по UID, числово)",note:"-t задава разделителя, -k задава полето"},
+   {code:"sort -t: -k3,3 -n file",out:"(само по 3-то поле)",note:"-k3,3 = само поле 3 (не до края на реда)"},
+  ]},
+ ]},
+{name:"stat",category:"B",desc:"Показва детайлна информация за файл: inode, права, размер, дати.",syntax:"stat [OPTIONS] FILE",
+ sections:[
+  {title:"Форматиран изход с -c",examples:[
+   {code:"stat -c '%i' file",out:"134217",note:"%i = inode номер"},
+   {code:"stat -c '%s' file",out:"4096",note:"%s = размер в байти"},
+   {code:"stat -c '%Y' file",out:"1709123456",note:"%Y = mtime като Unix timestamp"},
+   {code:"stat -c '%a' file",out:"644",note:"%a = права в осмична бройна система"},
+   {code:"stat -c '%h' file",out:"3",note:"%h = брой hardlinks"},
+   {code:"stat -c '%U' file",out:"pesho",note:"%U = собственик (username)"},
+   {code:"stat -c '%G' file",out:"students",note:"%G = група (groupname)"},
+   {code:"stat -c '%i %s %Y' file",out:"134217 4096 1709123456",note:"Комбинирани формати в един ред"},
+  ]},
+ ]},
+{name:"chmod",category:"C",desc:"Променя правата за достъп на файлове и директории.",syntax:"chmod [OPTIONS] MODE FILE",
+ sections:[
+  {title:"Символни права",examples:[
+   {code:"chmod u+x script.sh",out:"(-rwxr--r-- вместо -rw-r--r--)",note:"u=user, g=group, o=other, a=all; + добавя, - премахва, = задава точно"},
+   {code:"chmod g+w file",out:"(добавя write за групата)",note:""},
+   {code:"chmod o-rwx dir",out:"(премахва всичко за others)",note:"Сигурно за споделени директории"},
+   {code:"chmod 755 script.sh",out:"-rwxr-xr-x",note:"7=rwx(owner), 5=r-x(group), 5=r-x(other)"},
+   {code:"chmod 644 file.txt",out:"-rw-r--r--",note:"Типично за файлове при umask 022"},
+   {code:"chmod 2770 shared_dir",out:"drwxrws---",note:"2=setgid бит (новите файлове наследяват групата)"},
+   {code:"chmod -R g+rwX dir/",out:"(рекурсивно)",note:"-R рекурсивно; X = execute само за директории (не файлове)"},
+  ]},
+  {title:"umask логика (честа на изпита)",content:"umask дефинира битовете ИЗКЛЮЧЕНИ при създаване:\numask 022 → файл: 666 & ~022 = 644; директория: 777 & ~022 = 755\numask 002 → файл: 666 & ~002 = 664; директория: 777 & ~002 = 775",examples:[
+   {code:"umask 022",out:"",note:"Задава маската за текущата сесия"},
+   {code:"umask",out:"0022",note:"Показва текущата маска"},
+   {code:"# файл с umask 022 → chmod 644\n# директория с umask 022 → chmod 755",out:"",note:"Типичните права при umask 022"},
+  ]},
+ ]},
+{name:"sha256sum",category:"B",desc:"Изчислява SHA-256 хеш на файл. Използва се за проверка на идентичност и дедупликация.",syntax:"sha256sum [FILE...]",
+ sections:[
+  {title:"Употреба",examples:[
+   {code:"sha256sum file.txt",out:"a3f5bc...  file.txt",note:"Изход: <64-символен hash>  <filename> (2 интервала)"},
+   {code:"sha256sum file.txt | awk '{print $1}'",out:"a3f5bc...",note:"Само хешът (awk взима 1-во поле)"},
+   {code:"sha256sum *.txt",out:"a3f5... a.txt\nb2d1... b.txt",note:"Множество файлове наведнъж"},
+   {code:"sha256sum -c checksums.txt",out:"file.txt: OK\nother.txt: FAILED",note:"-c проверява от файл с хешове"},
+   {code:"find . -type f -exec sha256sum {} \\; | sort",out:"(всички хешове сортирани)",note:"За дедупликация — 2023-SE-04 и 2025-SE-06"},
+  ]},
+ ]},
+{name:"kill",category:"D",desc:"Изпраща сигнали на процеси. Въпреки името, не само спира процеси.",syntax:"kill [SIGNAL] PID",
+ sections:[
+  {title:"Сигнали и употреба",examples:[
+   {code:"kill 1234",out:"(SIGTERM до процес 1234)",note:"По подразбиране: SIGTERM (15) — молба за спиране"},
+   {code:"kill -9 1234",out:"(принудително спиране)",note:"SIGKILL (9) — не може да се игнорира!"},
+   {code:"kill -SIGTERM 1234",out:"",note:"Явен SIGTERM — по-четимо"},
+   {code:"kill -0 1234",out:"(exit 0 ако жив, 1 ако не)",note:"КЛЮЧОВО: проверка без реален сигнал!"},
+   {code:"kill -0 \"$(cat pidfile)\" 2>/dev/null && echo running",out:"running",note:"Типичен pattern в manage.sh задачи — 2025-SE-02"},
+   {code:"pkill -u pesho",out:"(всички процеси на pesho)",note:"pkill по критерий (по-удобно от kill)"},
+  ]},
+ ]},
+{name:"date",category:"F",desc:"Показва или задава текущата дата и час. Мощен за форматиране и аритметика.",syntax:"date [OPTIONS] [+FORMAT]",
+ sections:[
+  {title:"Форматиране и конвертиране",examples:[
+   {code:"date",out:"Tue Jun  9 14:23:01 EEST 2026",note:"По подразбиране — пълен формат"},
+   {code:"date +%s",out:"1717937381",note:"+%s = Unix timestamp (секунди от 1970)"},
+   {code:"date +'%Y-%m-%d %H:%M:%S'",out:"2026-06-09 14:23:01",note:"ISO формат — типичен за log файлове"},
+   {code:"date +\"%Y-%m-%d-%H-%M-%S\"",out:"2026-06-09-14-23-01",note:"За имена на файлове (без двоеточия)"},
+   {code:"date -d '@1551168000'",out:"(дата от Unix timestamp)",note:"-d '@<ts>' конвертира timestamp в четима дата"},
+   {code:"date -d '2024-08-22 + 1 day' +%Y-%m-%d",out:"2024-08-23",note:"Аритметика с дати — 2023-SE-05 pattern"},
+  ]},
+ ]},
+{name:"ln",category:"B",desc:"Създава links (hard или symbolic) между файлове.",syntax:"ln [OPTIONS] TARGET LINK_NAME",
+ sections:[
+  {title:"Hardlinks и symlinks",examples:[
+   {code:"ln file.txt hardlink.txt",out:"(споделят един inode)",note:"Без -s = hardlink — истинско копие на данните"},
+   {code:"ln -s /path/to/target link.txt",out:"link.txt -> /path/to/target",note:"-s = symbolic link (указател)"},
+   {code:"ln -s ../data/file.txt link.txt",out:"link.txt -> ../data/file.txt",note:"Относителен symlink — не се чупи при преместване"},
+   {code:"ln -f source dest",out:"(замества dest ако съществува)",note:"-f = force — нужно при hardlink върху съществуващ файл"},
+   {code:"realpath --relative-to=\"$(dirname $link)\" \"$target\"",out:"../../.data/abc123",note:"Изчисли относителния път — 2025-SE-06 pattern"},
+  ]},
+ ]},
+{name:"ps",category:"D",desc:"Показва информация за текущите процеси в системата.",syntax:"ps [OPTIONS]",
+ sections:[
+  {title:"Формати и филтри",examples:[
+   {code:"ps aux",out:"USER  PID %CPU %MEM VSZ RSS ...",note:"BSD формат — всички процеси, много информация"},
+   {code:"ps -o pid,rss,comm --no-headers",out:"1234 2048 bash",note:"-o задава полетата; --no-headers без хедър ред"},
+   {code:"ps -u pesho -o pid,rss",out:"(процесите на pesho)",note:"-u филтрира по потребител"},
+   {code:"ps aux | awk '$1==\"pesho\"{sum+=$6} END{print sum}'",out:"8192",note:"Сума на RSS по потребител — задачи с memory threshold"},
+  ]},
+ ]},
+{name:"xargs",category:"A",desc:"Строи и изпълнява команди от стандартния вход.",syntax:"xargs [OPTIONS] [COMMAND]",
+ sections:[
+  {title:"Употреба",examples:[
+   {code:"find . -type f -name '*.tmp' | xargs rm",out:"(изтрива намерените)",note:"Базова употреба — подава файловете като аргументи"},
+   {code:"find . -type f -print0 | xargs -0 grep 'pattern'",out:"(grep в намерените)",note:"-print0 + -0 = безопасно с интервали в имена на файлове"},
+   {code:"find . -type f | xargs -I{} cp {} /backup/",out:"",note:"-I{} задава placeholder за всеки аргумент"},
+  ]},
+ ]},
+{name:"cut",category:"A",desc:"Извлича полета или символи от всеки ред.",syntax:"cut [OPTIONS] [FILE]",
+ sections:[
+  {title:"Опции",examples:[
+   {code:"cut -d: -f1 /etc/passwd",out:"root\ndaemon\n...",note:"-d задава разделителя, -f полето"},
+   {code:"cut -d: -f1,5 /etc/passwd",out:"root:root\ndaemon:daemon",note:"Множество полета"},
+   {code:"cut -d: -f3-",out:"(от поле 3 до края)",note:"-f3- = поле 3 и нататък"},
+   {code:"cut -c1-5 file",out:"(първите 5 символа)",note:"-c = по позиция на символ (не поле)"},
+  ]},
+ ]},
+{name:"tr",category:"A",desc:"Транслитерира или изтрива символи от стандартния вход.",syntax:"tr [OPTIONS] SET1 [SET2]",
+ sections:[
+  {title:"Опции и примери",examples:[
+   {code:"echo 'Hello' | tr 'a-z' 'A-Z'",out:"HELLO",note:"Конвертиране в главни букви"},
+   {code:"echo 'HELLO' | tr '[:upper:]' '[:lower:]'",out:"hello",note:"Portable POSIX класове"},
+   {code:"echo 'a  b   c' | tr -s ' '",out:"a b c",note:"-s squeeze — съкращава повтарящи се символи"},
+   {code:"echo 'hello\\r' | tr -d '\\r'",out:"hello",note:"-d изтрива символи (полезно за Windows line endings)"},
+   {code:"tr ':' '\\n' < /etc/passwd | head",out:"(всяко поле на отделен ред)",note:"Замяна на : с newline за лесно парсване"},
+  ]},
+ ]},
+{name:"wc",category:"A",desc:"Брои редове, думи и байтове в текстов вход.",syntax:"wc [OPTIONS] [FILE]",
+ sections:[
+  {title:"Опции",examples:[
+   {code:"wc -l file",out:"42 file",note:"-l = брой редове (line count)"},
+   {code:"wc -l file | awk '{print $1}'",out:"42",note:"Само числото без името на файла"},
+   {code:"wc -w file",out:"153 file",note:"-w = брой думи"},
+   {code:"wc -c file",out:"1024 file",note:"-c = брой байтове"},
+   {code:"find . -type f | wc -l",out:"23",note:"Брой намерени файлове"},
+  ]},
+ ]},
+{name:"mkdir",category:"B",desc:"Създава директории.",syntax:"mkdir [OPTIONS] DIR...",
+ sections:[
+  {title:"Опции",examples:[
+   {code:"mkdir mydir",out:"",note:"Създава директория (грешка ако съществува)"},
+   {code:"mkdir -p path/to/deep/dir",out:"",note:"-p = parents; не дава грешка ако съществува — ЗАДЪЛЖИТЕЛНО в скриптове"},
+   {code:"mkdir -m 755 mydir",out:"",note:"-m задава правата директно при създаване"},
+  ]},
+ ]},
+];
+
+// ════ REGEX DATA ════
+const REGEX_COMPARISON=[
+ {feature:"Или (OR)",bre:"\\|",ere:"| или \\|",awk:"|",sed:"\\|",note:"grep -E или awk за по-чист синтаксис"},
+ {feature:"Групиране",bre:"\\( \\)",ere:"( )",awk:"( )",sed:"\\( \\)",note:"За backreferences: \\1, \\2..."},
+ {feature:"1 или повече (+)",bre:"\\+",ere:"+",awk:"+",sed:"\\+",note:"ERE/awk са по-четими"},
+ {feature:"0 или 1 (?)",bre:"\\?",ere:"?",awk:"?",sed:"\\?",note:""},
+ {feature:"Граница на дума",bre:"\\b",ere:"\\b",awk:"\\b (gawk)",sed:"\\b",note:"Не работи в стандартен awk"},
+ {feature:"Начало на ред (^)",bre:"^",ere:"^",awk:"^",sed:"^",note:"Работи навсякъде"},
+ {feature:"Край на ред ($)",bre:"$",ere:"$",awk:"$",sed:"$",note:"Работи навсякъде"},
+ {feature:"Всеки символ (.)",bre:".",ere:".",awk:".",sed:".",note:"Не съвпада с \\n по подразбиране"},
+ {feature:"Клас символи",bre:"[abc]",ere:"[abc]",awk:"[abc]",sed:"[abc]",note:"Работи навсякъде"},
+ {feature:"N пъти {n}",bre:"\\{n\\}",ere:"{n}",awk:"{n}",sed:"\\{n\\}",note:"ERE синтаксисът е по-четим"},
+ {feature:"N до M пъти {n,m}",bre:"\\{n,m\\}",ere:"{n,m}",awk:"{n,m}",sed:"\\{n,m\\}",note:""},
+];
+const REGEX_CLASSES=[
+ {cls:"[0-9]",alt:"[:digit:]",desc:"Цифри (0-9)"},
+ {cls:"[a-z]",alt:"[:lower:]",desc:"Малки латински букви"},
+ {cls:"[A-Z]",alt:"[:upper:]",desc:"Главни латински букви"},
+ {cls:"[a-zA-Z]",alt:"[:alpha:]",desc:"Всички латински букви"},
+ {cls:"[a-zA-Z0-9]",alt:"[:alnum:]",desc:"Букви и цифри"},
+ {cls:"[ \\t]",alt:"[:blank:]",desc:"Интервал и таб"},
+ {cls:"[ \\t\\n\\r]",alt:"[:space:]",desc:"Whitespace символи"},
+ {cls:"[!-/:-@]",alt:"[:punct:]",desc:"Пунктуация"},
+];
+const REGEX_EXAMPLES=[
+ {desc:"Ред с поне 1 четна цифра",pattern:"[02468]",cmd:"grep -E '[02468]' file",ctx:"2019-SE-01"},
+ {desc:"Ред БЕЗ малки a–w",pattern:"[a-w]",cmd:"grep -v '[a-w]' file",ctx:"2019-SE-01"},
+ {desc:"Цяла дума 'cat'",pattern:"\\bcat\\b",cmd:"grep -w 'cat'  ИЛИ  grep -E '\\bcat\\b'",ctx:"replace.sh задачи"},
+ {desc:"Само четирицифрени числа",pattern:"\\b[0-9]{4}\\b",cmd:"grep -E '\\b[0-9]{4}\\b' file",ctx:"дати, факултетни номера"},
+ {desc:"Ред започващ с цифра",pattern:"^[0-9]",cmd:"grep -E '^[0-9]' file",ctx:"log парсване"},
+ {desc:"Празен ред",pattern:"^$",cmd:"grep -vE '^$' file  # изключи празните",ctx:"почистване"},
+ {desc:"Коментар или празен ред",pattern:"^\\s*#|^\\s*$",cmd:"grep -vE '^\\s*#|^\\s*$' config",ctx:"2022-SE-01 ACPI задача"},
+ {desc:"Потребител от СИ в /etc/passwd",pattern:"^s[0-9]+:.*:504:",cmd:"grep -E '^s[0-9]+:.*:504:' /etc/passwd",ctx:"passwd задачи"},
+ {desc:"Unix timestamp (10 цифри)",pattern:"^[0-9]{10}$",cmd:"grep -E '^[0-9]{10}$'",ctx:"2020-SE-02 spacex"},
+ {desc:"SHA-256 хеш (64 hex символа)",pattern:"^[0-9a-f]{64}$",cmd:"grep -E '^[0-9a-f]{64}$'",ctx:"sha256 задачи"},
+ {desc:"key=value ред в config",pattern:"^\\s*[a-zA-Z_]+\\s*=",cmd:"grep -E '^\\s*[a-zA-Z_]+\\s*='",ctx:"config парсване"},
+ {desc:"!include директива",pattern:"^!include: ",cmd:"grep '^!include: ' file",ctx:"2026-SE-01 orange-cat"},
+ {desc:"IP адрес (опростен)",pattern:"[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+",cmd:"grep -E '[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+'",ctx:"мрежови задачи"},
+ {desc:"Дата YYYY-MM-DD",pattern:"[0-9]{4}-[0-9]{2}-[0-9]{2}",cmd:"grep -E '[0-9]{4}-[0-9]{2}-[0-9]{2}'",ctx:"date форматиране"},
+ {desc:"Главна буква следвана от малки",pattern:"[A-Z][a-z]+",cmd:"grep -oE '[A-Z][a-z]+' file",ctx:"имена на потребители"},
+];
+
+// ════ EXIT CODES DATA ════
+const EXIT_DATA=[
+ {sym:"$?",desc:"Exit code на последната команда (0 = успех, ≠0 = грешка)",ex:"ls /tmp; echo $?  →  0"},
+ {sym:"exit 0",desc:"Излез от скрипта успешно",ex:"[ -f \"$file\" ] && exit 0"},
+ {sym:"exit 1",desc:"Излез с грешка (общ код за грешка)",ex:"echo 'Грешка' >&2; exit 1"},
+ {sym:"||",desc:"Изпълни следващото само при НЕУСПЕХ на предишното",ex:"mkdir dir || { echo 'Грешка'; exit 1; }"},
+ {sym:"&&",desc:"Изпълни следващото само при УСПЕХ на предишното",ex:"mkdir dir && echo 'OK'"},
+ {sym:"2>/dev/null",desc:"Скрий error output (stderr)",ex:"kill -0 $pid 2>/dev/null"},
+ {sym:">&2",desc:"Изпрати съобщение към stderr (за грешки)",ex:"echo 'Грешка: файлът липсва' >&2"},
+ {sym:"set -e",desc:"Спри скрипта при първа грешка (внимавай с pipes!)",ex:"#!/bin/bash\nset -e"},
+ {sym:"|| true",desc:"Игнорирай грешка на команда (при set -e)",ex:"rm -f tmpfile || true"},
+];
+
+// ════ BASH DATA ════
+const BASH_DATA={
+ creation:[
+  {title:"Създай и направи изпълним",code:"touch script.sh\nchmod +x script.sh\n\n# Или директно изпълни без chmod:\nbash script.sh arg1 arg2"},
+  {title:"Shebang — задължително първи ред",code:"#!/bin/bash\n# или по-portable:\n#!/usr/bin/env bash"},
+  {title:"Изпълнение и debug",code:"./script.sh arg1 arg2   # изисква chmod +x\nbash script.sh arg1     # без chmod +x\nbash -x script.sh arg1  # debug mode (всяка команда се показва)"},
+ ],
+ variables:[
+  {sym:"$1, $2, ...",desc:"Позиционни параметри (аргументи)",ex:"./script.sh foo bar  →  $1=foo, $2=bar"},
+  {sym:"$@",desc:"Всички аргументи (запазва quoting)",ex:'for arg in "$@"; do echo "$arg"; done'},
+  {sym:"$#",desc:"Брой аргументи",ex:'[ $# -lt 2 ] && { echo "Нужни са 2 аргумента" >&2; exit 1; }'},
+  {sym:"$0",desc:"Името на скрипта",ex:'echo "Скриптът е: $0"'},
+  {sym:"$?",desc:"Exit code на предишната команда",ex:"grep pattern file; [ $? -eq 0 ] && echo намерен"},
+  {sym:"$$",desc:"PID на текущия скрипт",ex:"echo $$ > /tmp/my_script.pid"},
+  {sym:"$!",desc:"PID на последния фонов процес",ex:"sleep 10 & echo $! > pidfile"},
+ ],
+ constructs:[
+  {title:"if/elif/else",code:'if [ -f "$file" ]; then\n  echo "Файлът съществува"\nelif [ -d "$file" ]; then\n  echo "Директория"\nelse\n  echo "Не съществува"\nfi'},
+  {title:"case (за subcommands — много чест на изпита!)",code:'case "$1" in\n  start)  echo "Start" ;;\n  stop)   echo "Stop"  ;;\n  *)      echo "Неизвестна команда: $1" >&2; exit 1 ;;\nesac'},
+  {title:"for loop",code:'# По файлове:\nfor file in *.txt; do echo "$file"; done\n\n# По аргументи:\nfor arg in "$@"; do echo "$arg"; done\n\n# Числов:\nfor i in $(seq 1 5); do echo $i; done'},
+  {title:"while loop с четене на файл (КЛЮЧОВО!)",code:'while IFS= read -r line; do\n  echo "$line"\ndone < file.txt\n\n# С pipe:\nfind . -type f | while IFS= read -r file; do\n  echo "Обработвам: $file"\ndone'},
+  {title:"Функции",code:'my_function() {\n  local var="$1"  # локална променлива\n  echo "Аргумент: $var"\n  return 0\n}\nmy_function "hello"'},
+  {title:"Асоциативни масиви (declare -A)",code:'declare -A groups\ngroups["key1"]="val1"\ngroups["key2"]+="append"\nfor key in "${!groups[@]}"; do\n  echo "$key: ${groups[$key]}"\ndone'},
+ ],
+ template:'#!/bin/bash\n# Описание на скрипта\n# Употреба: ./script.sh ARG1 ARG2\n\nset -euo pipefail  # спри при грешка, неизвестна промен., pipeline грешки\n\n# Проверка на аргументи\nif [ $# -lt 2 ]; then\n  echo "Употреба: $0 <arg1> <arg2>" >&2\n  exit 1\nfi\n\nARG1="$1"\nARG2="$2"\n\n# Основна логика\nmain() {\n  echo "Обработвам: $ARG1 и $ARG2"\n  # ... твоята логика тук\n}\n\nmain "$@"',
+};
+
+// ════ VIM DATA ════
+const VIM_DATA={
+ modes:[
+  {name:"Normal",color:"#5B9BD5",key:"Esc",desc:"Режим по подразбиране. Навигация и команди. Винаги се връщай тук с Esc."},
+  {name:"Insert",color:"#4CAF7A",key:"i / a / o",desc:"Писане на текст. i = преди курсора, a = след курсора, o = нов ред долу."},
+  {name:"Visual",color:"#E8C445",key:"v / V / Ctrl+v",desc:"Маркиране на текст. v = символ по символ, V = цял ред, Ctrl+v = блок."},
+  {name:"Command",color:"#E87545",key:":",desc:"Команди за запазване, изход, търсене и замяна в целия файл."},
+ ],
+ navigation:[
+  {key:"h j k l",desc:"Ляво / Долу / Горе / Дясно (вместо стрелките)"},
+  {key:"w / b",desc:"Следваща / предишна дума"},
+  {key:"e",desc:"Край на текущата дума"},
+  {key:"0 / ^",desc:"Начало на ред / първи непразен символ"},
+  {key:"$",desc:"Край на ред"},
+  {key:"gg / G",desc:"Начало / край на файл"},
+  {key:"5G",desc:"Отиди на ред 5 (замени 5 с желания номер)"},
+  {key:"Ctrl+d / Ctrl+u",desc:"Половин страница надолу / нагоре"},
+  {key:"Ctrl+f / Ctrl+b",desc:"Цяла страница надолу / нагоре"},
+  {key:"%",desc:"Скочи към съответната скоба ( ) { } [ ]"},
+ ],
+ editing:[
+  {key:"i / I",desc:"Insert преди курсора / в началото на реда"},
+  {key:"a / A",desc:"Insert след курсора / в края на реда"},
+  {key:"o / O",desc:"Нов ред долу / горе и влез в Insert режим"},
+  {key:"dd",desc:"Изтрий текущия ред (cut — може да се paste-не с p)"},
+  {key:"5dd",desc:"Изтрий 5 реда"},
+  {key:"yy",desc:"Копирай текущия ред (yank)"},
+  {key:"p / P",desc:"Постави след / преди курсора"},
+  {key:"u",desc:"Undo (отмени последното действие)"},
+  {key:"Ctrl+r",desc:"Redo (повтори отмененото)"},
+  {key:"x",desc:"Изтрий символ под курсора"},
+  {key:"dw",desc:"Изтрий дума"},
+  {key:"cw",desc:"Замени дума (изтрива и влиза в Insert)"},
+  {key:".",desc:"Повтори последното действие (много полезно!)"},
+ ],
+ commands:[
+  {key:":w",desc:"Запази файла"},
+  {key:":q",desc:"Изход (само ако няма незапазени промени)"},
+  {key:":wq  или  :x  или  ZZ",desc:"Запази и излез"},
+  {key:":q!",desc:"Излез без запазване (принудително)"},
+  {key:":w filename",desc:"Запази като друго файлово име"},
+  {key:"/pattern",desc:"Търси надолу в файла"},
+  {key:"?pattern",desc:"Търси нагоре в файла"},
+  {key:"n / N",desc:"Следващо / предишно съвпадение при търсене"},
+  {key:":%s/old/new/g",desc:"Замени всички 'old' с 'new' в целия файл"},
+  {key:":%s/old/new/gi",desc:"Замени всички (case insensitive)"},
+  {key:":5,10s/old/new/g",desc:"Замени само в редове 5-10"},
+  {key:":set number",desc:"Покажи номера на редовете"},
+  {key:":syntax on",desc:"Включи syntax highlighting"},
+  {key:":!bash %",desc:"Изпълни текущия файл като bash скрипт"},
+ ],
+ shellTips:[
+  "Отвори .sh файл: vim script.sh",
+  "Бързо запази и провери: :w | :!bash %",
+  "Коментирай блок: Ctrl+v → маркирай редове → I → # → Esc",
+  "Изтрий trailing spaces: :%s/\\s\\+$//",
+  "Покажи непечатаеми символи: :set list",
+  "Замени Tab с 2 интервала: :%s/\\t/  /g",
+  "Отиди на ред с грешка (след bash -x): :42 (или 42G)",
+  "Отвори файл под cursor-а: gf",
+  "Повтори последна Command команда: @:",
+  "Избери цял файл: ggVG",
+ ],
+};
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let state={
+ activeTab:"tasks",
+ taskFilters:{type:null,pattern:null,year:null,cmd:null},
+ selectedTask:null,
+ taskMode:"pipeline",
+ checkedSteps:{},
+ selectedCmd:COMMANDS[0],
+ regexTab:"comparison",
+ bashSection:"creation",
+ vimSection:"modes",
+ examTasks:null,
+ examIdx:0,
+ examDone:false,
+ examTime:0,
+ examTimer:null,
+ examStarted:false,
+};
+
+// ════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function fmtTime(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')}
+
+// ════════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ════════════════════════════════════════════════════════════════
+function showTab(tab){
+ document.querySelectorAll('[id^="tab-"]').forEach(el=>el.classList.add('hidden'));
+ document.getElementById('tab-'+tab).classList.remove('hidden');
+ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+ event.target.classList.add('active');
+ state.activeTab=tab;
+ if(tab==='tasks') renderTaskList();
+ if(tab==='commands') renderCmdList();
+ if(tab==='patterns') renderPatterns();
+ if(tab==='bash') renderBash();
+ if(tab==='vim') renderVim();
+}
+
+// ════════════════════════════════════════════════════════════════
+// FILTERS
+// ════════════════════════════════════════════════════════════════
+function setFilter(key,val,btn){
+ const row=btn.closest('.pill-row');
+ row.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+ if(state.taskFilters[key]===val){state.taskFilters[key]=null;row.querySelector('.pill').classList.add('active');}
+ else{state.taskFilters[key]=val;btn.classList.add('active');}
+ renderTaskList();
+}
+function setFilterFromId(key,val){
+ state.taskFilters[key]=(state.taskFilters[key]===val?null:val);
+ renderTaskList();
+ // refresh filter pills
+ buildFilters();
+}
+
+function buildFilters(){
+ // Pattern filters
+ const pf=document.getElementById('pattern-filters');
+ pf.innerHTML='<button class="pill'+(state.taskFilters.pattern===null?' active':'')+'" onclick="setFilterFromId(\'pattern\',null)">Всички</button>';
+ Object.values(PATTERNS).forEach(p=>{
+  const active=state.taskFilters.pattern===p.id;
+  pf.innerHTML+=`<button class="pill" style="${active?`background:${p.bg};color:${p.color};border-color:${p.color}`:''}" onclick="setFilterFromId('pattern','${p.id}')">${p.icon} ${p.id}</button>`;
+ });
+ // Year filters
+ const years=[...new Set(TASKS.map(t=>t.year))].sort((a,b)=>b-a);
+ const yf=document.getElementById('year-filters');
+ yf.innerHTML='<button class="pill'+(state.taskFilters.year===null?' active':'')+'" onclick="setFilterFromId(\'year\',null)">Всички</button>';
+ years.forEach(y=>{
+  yf.innerHTML+=`<button class="pill${state.taskFilters.year===y?' active':''}" onclick="setFilterFromId('year',${y})">${y}</button>`;
+ });
+ // Cmd filters
+ const cmds=[...new Set(TASKS.flatMap(t=>t.commands))].sort();
+ const cf=document.getElementById('cmd-filters');
+ cf.innerHTML='';
+ cmds.forEach(c=>{
+  cf.innerHTML+=`<button class="pill${state.taskFilters.cmd===c?' active':''}" style="${state.taskFilters.cmd===c?'font-family:monospace;'+' background:#21262D;color:var(--amber);border-color:var(--amber)':''}" onclick="setFilterFromId('cmd','${c}')">${c}</button>`;
+ });
+}
+
+// ════════════════════════════════════════════════════════════════
+// TASKS TAB
+// ════════════════════════════════════════════════════════════════
+function filteredTasks(){
+ return TASKS.filter(t=>{
+  if(state.taskFilters.type && t.type!==state.taskFilters.type) return false;
+  if(state.taskFilters.pattern && !t.patterns.includes(state.taskFilters.pattern)) return false;
+  if(state.taskFilters.year && t.year!==state.taskFilters.year) return false;
+  if(state.taskFilters.cmd && !t.commands.includes(state.taskFilters.cmd)) return false;
+  return true;
+ });
+}
+
+function renderTaskList(){
+ const list=document.getElementById('task-list');
+ const tasks=filteredTasks();
+ if(!tasks.length){list.innerHTML='<div style="padding:12px;color:var(--muted);font-size:12px">Няма задачи за избраните филтри</div>';return;}
+ list.innerHTML=tasks.map(t=>`
+  <button class="task-item${state.selectedTask?.id===t.id?' active':''}" onclick="selectTask('${t.id}')">
+   <div style="display:flex;justify-content:space-between">
+    <span class="task-year">${t.year}</span>
+    <span class="task-diff">${'●'.repeat(t.difficulty)}${'○'.repeat(4-t.difficulty)}</span>
+   </div>
+   <div class="task-name">${esc(t.title)}</div>
+   <div class="task-short">${esc(t.shortDesc)}</div>
+   <div class="pt-tags">
+    ${t.patterns.map(p=>`<span class="pt-tag" style="background:${PATTERNS[p].bg};color:${PATTERNS[p].color}">${PATTERNS[p].icon}${p}</span>`).join('')}
+    <span class="pt-tag" style="background:${t.type==='script'?'rgba(196,91,213,0.13)':'rgba(91,155,213,0.13)'};color:${t.type==='script'?'#C45BD5':'#5B9BD5'}">${t.type}</span>
+   </div>
+  </button>`).join('');
+}
+
+function selectTask(id){
+ state.selectedTask=TASKS.find(t=>t.id===id);
+ state.taskMode='pipeline';
+ state.checkedSteps={};
+ renderTaskList();
+ renderTaskMain();
+}
+
+function setTaskMode(mode){
+ state.taskMode=mode;
+ renderTaskMain();
+}
+
+function renderTaskMain(){
+ const m=document.getElementById('task-main');
+ const t=state.selectedTask;
+ if(!t){m.innerHTML='<div style="color:var(--muted);font-size:13px;margin-top:40px;text-align:center">Избери задача от списъка вляво ←</div>';return;}
+ const modes=['pipeline','example','solution','info'];
+ const modeLabels={pipeline:'🔧 Стъпки',example:'📊 Пример',solution:'💡 Решение',info:'📄 Инфо'};
+ let content='';
+ if(state.taskMode==='pipeline'){
+  const total=t.pipeline.length;
+  const done=t.pipeline.filter((_,i)=>state.checkedSteps[`${t.id}-${i}`]).length;
+  content=`
+   <div style="color:var(--muted);font-size:12px;margin-bottom:14px">Разбери всяка стъпка и отбележи я — ${done}/${total} разбрани</div>
+   ${t.pipeline.map((step,i)=>{
+    const k=`${t.id}-${i}`;
+    const isDone=state.checkedSteps[k];
+    const cmdTags=COMMANDS.filter(c=>step.cmd.includes(c.name)).map(c=>`<button class="cmd-tag" onclick="openCmd('${c.name}')">⬆ ${c.name}</button>`).join(' ');
+    return `<div class="pipeline-step${isDone?' done':''}" id="step-${t.id}-${i}">
+     <div class="step-header">
+      <button class="check-btn${isDone?' done':''}" onclick="toggleStep('${t.id}',${i})">${isDone?'✓':(i+1)}</button>
+      <span class="step-title">${esc(step.step)}</span>
+     </div>
+     <code class="cmd-block cmd-amber">${esc(step.cmd)}</code>
+     <div class="tip-box">💡 ${esc(step.tip)}</div>
+     ${cmdTags?`<div class="step-cmd-tags">${cmdTags}</div>`:''}
+    </div>`;
+   }).join('')}`;
+ } else if(state.taskMode==='example'){
+  content=`<div class="card">
+   <div class="sec-label">Примерен вход</div>
+   <code class="cmd-block cmd-blue">${esc(t.example.input)}</code>
+   <div class="sec-label" style="margin-top:12px">Примерен изход</div>
+   <code class="cmd-block cmd-green">${esc(t.example.output)}</code>
+   <div class="sec-label" style="margin-top:12px">Обяснение</div>
+   <div style="font-size:13px;color:#C9D1D9;line-height:1.7">${esc(t.example.explanation)}</div>
+  </div>`;
+ } else if(state.taskMode==='solution'){
+  content=`<div class="card">
+   <div class="sec-label">Пълно решение</div>
+   <code class="cmd-block cmd-amber">${esc(t.solution)}</code>
+   <div style="font-size:12px;color:var(--muted);margin-top:12px">Препоръчително: разбери стъпките първо — решението ще има повече смисъл.</div>
+  </div>`;
+ } else {
+  const similar=TASKS.filter(x=>x.id!==t.id&&x.patterns.some(p=>t.patterns.includes(p))).slice(0,4);
+  content=`<div class="card">
+   <div class="sec-label">Описание</div>
+   <pre class="desc-pre">${esc(t.description)}</pre>
+   <div class="sec-label" style="margin-top:14px">Команди в задачата</div>
+   <div style="margin-bottom:16px">${t.commands.map(c=>`<button class="cmd-tag" onclick="openCmd('${c}')">⬆ ${c}</button>`).join(' ')}</div>
+   <div class="sec-label">Подобни задачи</div>
+   <div>${similar.map(x=>`<button class="cmd-tag" style="color:#5B9BD5;margin:3px" onclick="selectTask('${x.id}')">${x.year} ${esc(x.title)}</button>`).join('')}</div>
+  </div>`;
+ }
+ m.innerHTML=`
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+   <div>
+    <div style="font-size:11px;color:var(--amber);margin-bottom:4px;font-family:monospace">${t.id}</div>
+    <h1 style="font-size:19px;font-weight:700;color:var(--bright);margin:0 0 8px;line-height:1.2">${esc(t.title)}</h1>
+    <div>${t.tags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div>
+   </div>
+   <div class="mode-btns">${modes.map(mode=>`<button class="mode-btn${state.taskMode===mode?' active':''}" onclick="setTaskMode('${mode}')">${modeLabels[mode]}</button>`).join('')}</div>
+  </div>
+  <div class="strategy-box"><span style="color:var(--amber);margin-right:8px">→</span><b style="color:var(--bright)">Стратегия:</b> ${esc(t.strategy)}</div>
+  ${content}`;
+}
+
+function toggleStep(taskId,idx){
+ const k=`${taskId}-${idx}`;
+ state.checkedSteps[k]=!state.checkedSteps[k];
+ // update just the step element
+ const el=document.getElementById(`step-${taskId}-${idx}`);
+ if(el){
+  el.classList.toggle('done',state.checkedSteps[k]);
+  const btn=el.querySelector('.check-btn');
+  btn.classList.toggle('done',state.checkedSteps[k]);
+  btn.textContent=state.checkedSteps[k]?'✓':(idx+1);
+ }
+ // update progress text
+ const t=state.selectedTask;
+ const done=t.pipeline.filter((_,i)=>state.checkedSteps[`${t.id}-${i}`]).length;
+ const progressEl=document.querySelector('#task-main [style*="Розбери"]') || document.querySelector('#task-main div[style*="разбрани"]');
+ if(progressEl) progressEl.textContent=`Разбери всяка стъпка и отбележи я — ${done}/${t.pipeline.length} разбрани`;
+}
+
+function openCmd(name){
+ const c=COMMANDS.find(x=>x.name===name)||{name};
+ state.selectedCmd=c;
+ // switch to commands tab
+ document.querySelectorAll('[id^="tab-"]').forEach(el=>el.classList.add('hidden'));
+ document.getElementById('tab-commands').classList.remove('hidden');
+ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+ document.querySelectorAll('.nav-btn')[1].classList.add('active');
+ renderCmdList();
+ renderCmdMain();
+}
+
+// ════════════════════════════════════════════════════════════════
+// COMMANDS TAB
+// ════════════════════════════════════════════════════════════════
+function renderCmdList(){
+ const list=document.getElementById('cmd-list');
+ const items=[...COMMANDS.map(c=>({name:c.name,sub:PATTERNS[c.category]?.label||'',isSpecial:false})),
+  {name:'regex',sub:'Всички инструменти',isSpecial:true},
+  {name:'exit codes',sub:'Error handling',isSpecial:true}];
+ list.innerHTML=items.map(c=>`
+  <button class="task-item${state.selectedCmd?.name===c.name?' active':''}" onclick="selectCmd('${c.name}')">
+   <div style="font-family:monospace;font-size:13px;color:${state.selectedCmd?.name===c.name?'var(--amber)':'var(--bright)'};font-weight:600">${c.name}</div>
+   <div style="font-size:11px;color:var(--muted);margin-top:2px">${c.sub}</div>
+  </button>`).join('');
+}
+
+function selectCmd(name){
+ if(name==='regex') state.selectedCmd={name:'regex'};
+ else if(name==='exit codes') state.selectedCmd={name:'exit codes'};
+ else state.selectedCmd=COMMANDS.find(c=>c.name===name)||{name};
+ renderCmdList();
+ renderCmdMain();
+}
+
+function renderCmdMain(){
+ const m=document.getElementById('cmd-main');
+ const c=state.selectedCmd;
+ if(!c){m.innerHTML='';return;}
+
+ if(c.name==='regex'){
+  renderRegex(m); return;
+ }
+ if(c.name==='exit codes'){
+  renderExitCodes(m); return;
+ }
+
+ const cmd=COMMANDS.find(x=>x.name===c.name);
+ if(!cmd){m.innerHTML='<div style="color:var(--muted)">Командата не е намерена</div>';return;}
+
+ const sectionsHtml=cmd.sections.map((sec,si)=>`
+  <div class="card" style="margin-bottom:14px">
+   <div class="sec-label">${esc(sec.title)}</div>
+   ${sec.content?`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;white-space:pre-wrap;line-height:1.7">${esc(sec.content)}</div>`:''}
+   ${(sec.examples||[]).map(ex=>`
+    <div class="example-row">
+     <code class="cmd-block cmd-amber">${esc(ex.code)}</code>
+     ${ex.out?`<div class="out-box">${esc(ex.out)}</div>`:''}
+     ${ex.note?`<div style="font-size:11px;color:var(--muted);margin-top:5px">↳ ${esc(ex.note)}</div>`:''}
+    </div>`).join('')}
+  </div>`).join('');
+
+ m.innerHTML=`
+  <div style="margin-bottom:18px">
+   <div style="font-size:11px;color:${PATTERNS[cmd.category]?.color||'var(--muted)'};margin-bottom:4px">${PATTERNS[cmd.category]?.label||''}</div>
+   <h1 style="font-family:monospace;font-size:24px;font-weight:700;color:var(--amber);margin:0 0 8px">${cmd.name}</h1>
+   <div style="font-size:13px;color:#C9D1D9;line-height:1.6;margin-bottom:8px">${esc(cmd.desc)}</div>
+   <code class="cmd-block" style="color:var(--muted);display:inline-block;font-size:12px">${esc(cmd.syntax)}</code>
+  </div>
+  ${sectionsHtml}`;
+}
+
+function renderRegex(m){
+ const tabs=['comparison','classes','examples'];
+ const labels={comparison:'Сравнение BRE/ERE/awk/sed',classes:'Класове символи',examples:'Примери от изпита'};
+ let content='';
+ if(state.regexTab==='comparison'){
+  content=`<div style="overflow-x:auto"><table>
+   <thead><tr><th>Функция</th><th>BRE (grep)</th><th>ERE (grep -E)</th><th>awk</th><th>sed</th><th>Бележка</th></tr></thead>
+   <tbody>${REGEX_COMPARISON.map(r=>`<tr>
+    <td>${esc(r.feature)}</td>
+    <td style="font-family:monospace;color:var(--amber)">${esc(r.bre)}</td>
+    <td style="font-family:monospace;color:var(--green)">${esc(r.ere)}</td>
+    <td style="font-family:monospace;color:var(--blue)">${esc(r.awk)}</td>
+    <td style="font-family:monospace;color:#C45BD5">${esc(r.sed)}</td>
+    <td style="color:var(--muted);font-size:11px" class="regex-note">${esc(r.note)}</td>
+   </tr>`).join('')}</tbody>
+  </table></div>`;
+ } else if(state.regexTab==='classes'){
+  content=`<div style="overflow-x:auto"><table>
+   <thead><tr><th>Класова нотация</th><th>POSIX клас</th><th>Описание</th></tr></thead>
+   <tbody>${REGEX_CLASSES.map(r=>`<tr>
+    <td style="font-family:monospace;color:var(--amber)">${esc(r.cls)}</td>
+    <td style="font-family:monospace;color:var(--green)">${esc(r.alt)}</td>
+    <td style="color:#C9D1D9">${esc(r.desc)}</td>
+   </tr>`).join('')}</tbody>
+  </table></div>`;
+ } else {
+  content=REGEX_EXAMPLES.map(ex=>`
+   <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+     <div style="font-size:13px;font-weight:600;color:var(--bright)">${esc(ex.desc)}</div>
+     <span style="font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(232,160,69,0.15);color:var(--amber)">${esc(ex.ctx)}</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Pattern: <code style="color:var(--green);font-family:monospace">${esc(ex.pattern)}</code></div>
+    <code class="cmd-block cmd-amber">${esc(ex.cmd)}</code>
+   </div>`).join('');
+ }
+ m.innerHTML=`
+  <h1 style="font-size:20px;font-weight:700;color:var(--amber);margin:0 0 6px">Regex справка</h1>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Синтаксисът варира между grep (BRE/ERE), awk и sed. Таблицата показва разликите.</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px">
+   ${tabs.map(t=>`<button class="mode-btn${state.regexTab===t?' active':''}" onclick="setRegexTab('${t}')">${labels[t]}</button>`).join('')}
+  </div>
+  ${content}`;
+}
+
+function setRegexTab(tab){
+ state.regexTab=tab;
+ renderRegex(document.getElementById('cmd-main'));
+}
+
+function renderExitCodes(m){
+ m.innerHTML=`
+  <h1 style="font-size:20px;font-weight:700;color:var(--amber);margin:0 0 6px">Exit codes и Error handling</h1>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:18px">Правилната обработка на грешки е задължителна в задачите от 2022 нататък.</div>
+  ${EXIT_DATA.map(e=>`
+   <div class="example-row" style="margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+     <code style="font-family:monospace;font-size:14px;color:var(--amber);min-width:100px;font-weight:700">${esc(e.sym)}</code>
+     <div style="flex:1">
+      <div style="font-size:13px;color:#C9D1D9;margin-bottom:6px">${esc(e.desc)}</div>
+      <code class="cmd-block cmd-green" style="margin:0">${esc(e.ex)}</code>
+     </div>
+    </div>
+   </div>`).join('')}
+  <div class="card" style="margin-top:20px">
+   <div class="sec-label">Шаблон за скрипт с error handling</div>
+   <code class="cmd-block cmd-amber">#!/bin/bash
+set -euo pipefail
+# set -e  → спри при грешка
+# set -u  → грешка при неизвестна променлива
+# set -o pipefail → грешка при fail в pipe
+
+[ $# -lt 2 ] &amp;&amp; { echo "Употреба: $0 &lt;arg1&gt; &lt;arg2&gt;" &gt;&amp;2; exit 1; }
+[ -f "$1" ] || { echo "Грешка: $1 не е файл" &gt;&amp;2; exit 1; }
+
+if ! some_command; then
+  echo "Командата се провали" &gt;&amp;2
+  exit 1
+fi</code>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// PATTERNS TAB
+// ════════════════════════════════════════════════════════════════
+function renderPatterns(){
+ const g=document.getElementById('patterns-grid');
+ const patternDescs={
+  A:"Задачата изисква филтриране, броене, извличане на полета или трансформация на текст.",
+  B:"Задачата работи с файлова система: търсене, metadata (inode, mtime, size), symlinks.",
+  C:"Задачата споменава chmod, umask, права за достъп, собственик или група.",
+  D:"Задачата работи с процеси: стартиране, спиране, мониторинг, RSS памет.",
+  E:"Задачата изисква скрипт с аргументи, условия, цикли, функции или валидация.",
+  F:"Задачата изисква преобразуване на данни: CSV, log парсване, join на datasets.",
+ };
+ g.innerHTML=Object.values(PATTERNS).map(p=>{
+  const related=TASKS.filter(t=>t.patterns.includes(p.id));
+  const cmdsForPattern=COMMANDS.filter(c=>c.category===p.id);
+  return `<div class="pattern-card" style="border-color:${p.color}44">
+   <div class="pattern-header" style="background:${p.bg}">
+    <span class="pattern-icon">${p.icon}</span>
+    <div>
+     <div class="pattern-engine" style="color:${p.color}">Двигател ${p.id}</div>
+     <div class="pattern-name">${p.label}</div>
+    </div>
+   </div>
+   <div class="pattern-body">
+    <div class="sec-label">Кога да го разпознаеш</div>
+    <div class="pattern-desc">${patternDescs[p.id]}</div>
+    <div class="sec-label">Типични команди</div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+     ${cmdsForPattern.map(c=>`<button class="cmd-tag" onclick="selectCmd('${c.name}')">${c.name} ↗</button>`).join('')}
+    </div>
+    <div class="sec-label">Задачи от изпита (${related.length})</div>
+    <div class="pattern-tasks-list">
+     ${related.slice(0,5).map(t=>`<button onclick="goToTask('${t.id}')">→ ${t.year} ${esc(t.title)}</button>`).join('')}
+    </div>
+   </div>
+  </div>`;
+ }).join('');
+}
+
+function goToTask(id){
+ state.selectedTask=TASKS.find(t=>t.id===id);
+ state.taskMode='pipeline';
+ state.checkedSteps={};
+ showTabDirect('tasks');
+ renderTaskList();
+ renderTaskMain();
+}
+
+function showTabDirect(tab){
+ document.querySelectorAll('[id^="tab-"]').forEach(el=>el.classList.add('hidden'));
+ document.getElementById('tab-'+tab).classList.remove('hidden');
+ document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+ const tabs=['tasks','commands','patterns','bash','vim','exam'];
+ const idx=tabs.indexOf(tab);
+ if(idx>=0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════
+// BASH TAB
+// ════════════════════════════════════════════════════════════════
+function showBash(section,btn){
+ state.bashSection=section;
+ document.querySelectorAll('#tab-bash .task-item').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ renderBash();
+}
+
+function renderBash(){
+ const m=document.getElementById('bash-main');
+ const s=state.bashSection;
+ let html='';
+ if(s==='creation'){
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:18px">Създаване на Bash скрипт</h1>
+   ${BASH_DATA.creation.map(item=>`<div class="card" style="margin-bottom:12px">
+    <div class="sec-label">${esc(item.title)}</div>
+    <code class="cmd-block cmd-amber">${esc(item.code)}</code>
+   </div>`).join('')}
+   <div class="card">
+    <div class="sec-label">Debug с bash -x</div>
+    <code class="cmd-block cmd-amber">bash -x script.sh arg1 arg2
+
+# Изходът ще изглежда така:
++ echo 'Обработвам: arg1'
++ grep pattern file.txt
++ '[' 0 -lt 2 ']'
+
+# Всеки изпълнен ред се показва с +
+# Много полезно за намиране на грешки!</code>
+   </div>`;
+ } else if(s==='variables'){
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:18px">Специални променливи</h1>
+   ${BASH_DATA.variables.map(v=>`<div class="example-row" style="margin-bottom:10px">
+    <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+     <code style="font-family:monospace;font-size:16px;color:var(--amber);min-width:70px;font-weight:700">${esc(v.sym)}</code>
+     <div style="flex:1">
+      <div style="font-size:13px;color:#C9D1D9;margin-bottom:6px">${esc(v.desc)}</div>
+      <code class="cmd-block" style="font-size:12px;margin:0">${esc(v.ex)}</code>
+     </div>
+    </div>
+   </div>`).join('')}`;
+ } else if(s==='constructs'){
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:18px">Конструкции в Bash</h1>
+   ${BASH_DATA.constructs.map(c=>`<div class="card" style="margin-bottom:14px">
+    <div class="sec-label">${esc(c.title)}</div>
+    <code class="cmd-block cmd-amber">${esc(c.code)}</code>
+   </div>`).join('')}`;
+ } else {
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:8px">Шаблон за скрипт</h1>
+   <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Използвай това като отправна точка за всяка задача на изпита.</div>
+   <code class="cmd-block cmd-amber">${esc(BASH_DATA.template)}</code>`;
+ }
+ m.innerHTML=html;
+}
+
+// ════════════════════════════════════════════════════════════════
+// VIM TAB
+// ════════════════════════════════════════════════════════════════
+function showVim(section,btn){
+ state.vimSection=section;
+ document.querySelectorAll('#tab-vim .task-item').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ renderVim();
+}
+
+function renderVim(){
+ const m=document.getElementById('vim-main');
+ const s=state.vimSection;
+ let html='';
+ if(s==='modes'){
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:18px">Vim режими</h1>
+   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px">
+    ${VIM_DATA.modes.map(m=>`<div class="card" style="border-color:${m.color}44">
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:16px;font-weight:700;color:${m.color}">${m.name}</span>
+      <code style="font-family:monospace;font-size:12px;color:var(--amber);background:#0D1117;padding:2px 8px;border-radius:4px">${esc(m.key)}</code>
+     </div>
+     <div style="font-size:12px;color:#C9D1D9;line-height:1.6">${esc(m.desc)}</div>
+    </div>`).join('')}
+   </div>
+   <div class="card">
+    <div class="sec-label">Диаграма на преходите</div>
+    <code class="cmd-block" style="color:var(--muted);text-align:center">                
+				┌─────────────┐
+          Esc   │   NORMAL    │    :
+     ┌──────────│    режим    │──────────┐
+     │          └──────┬──────┘          │
+     │                 │i/a/o            ▼
+┌────┴──────┐          │        ┌────────────────┐
+│  INSERT   │◄─────────┘        │  COMMAND  (:) │
+│  режим    │                   └────────────────┘
+└───────────┘
+     │          v/V/Ctrl+v
+     │     ┌──────────────┐
+     └────►│   VISUAL     │
+           │   режим      │
+           └──────────────┘
+    Esc от всеки режим → връща в NORMAL</code>
+   </div>`;
+ } else if(s==='navigation'||s==='editing'||s==='commands'){
+  const data=VIM_DATA[s];
+  const titles={navigation:'Навигация',editing:'Редактиране',commands:'Command режим (:)'};
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:18px">${titles[s]}</h1>
+   ${data.map(n=>`<div class="vim-row">
+    <code class="vim-key">${esc(n.key)}</code>
+    <span class="vim-desc">${esc(n.desc)}</span>
+   </div>`).join('')}`;
+ } else {
+  html=`<h1 style="font-size:20px;font-weight:700;color:var(--bright);margin-bottom:18px">Vim трикове за shell скриптове</h1>
+   ${VIM_DATA.shellTips.map(tip=>`<div class="card" style="margin-bottom:10px">
+    <span style="color:var(--amber);margin-right:8px">$</span>
+    <span style="font-size:13px;color:#C9D1D9">${esc(tip)}</span>
+   </div>`).join('')}`;
+ }
+ m.innerHTML=html;
+}
+
+// ════════════════════════════════════════════════════════════════
+// EXAM TAB
+// ════════════════════════════════════════════════════════════════
+function startExam(){
+ state.examTasks=[...TASKS].sort(()=>Math.random()-0.5).slice(0,5);
+ state.examIdx=0; state.examDone=false; state.examTime=0; state.examStarted=true;
+ document.getElementById('exam-start').classList.add('hidden');
+ document.getElementById('exam-running').classList.remove('hidden');
+ document.getElementById('exam-results').classList.add('hidden');
+ state.examTimer=setInterval(()=>{
+  state.examTime++;
+  document.getElementById('exam-timer').textContent=fmtTime(state.examTime);
+ },1000);
+ renderExamTask();
+}
+
+function renderExamTask(){
+ const t=state.examTasks[state.examIdx];
+ const total=state.examTasks.length;
+ document.getElementById('exam-counter').textContent=`Задача ${state.examIdx+1} от ${total}`;
+ document.getElementById('exam-task-card').innerHTML=`
+  <div style="font-size:11px;color:var(--amber);margin-bottom:4px;font-family:monospace">${t.id}</div>
+  <h2 style="font-size:18px;font-weight:700;color:var(--bright);margin:0 0 14px">${esc(t.title)}</h2>
+  <pre class="desc-pre">${esc(t.description)}</pre>
+  <div style="margin-top:10px">${t.tags.map(tag=>`<span class="tag">${esc(tag)}</span>`).join('')}</div>`;
+ document.getElementById('exam-prev-btn').style.display=state.examIdx>0?'inline-block':'none';
+ if(state.examIdx<total-1){
+  document.getElementById('exam-next-btn').classList.remove('hidden');
+  document.getElementById('exam-finish-btn').classList.add('hidden');
+ } else {
+  document.getElementById('exam-next-btn').classList.add('hidden');
+  document.getElementById('exam-finish-btn').classList.remove('hidden');
+ }
+}
+
+function examNav(dir){
+ state.examIdx=Math.max(0,Math.min(state.examTasks.length-1,state.examIdx+dir));
+ renderExamTask();
+}
+
+function finishExam(){
+ clearInterval(state.examTimer);
+ state.examDone=true;
+ document.getElementById('exam-running').classList.add('hidden');
+ document.getElementById('exam-results').classList.remove('hidden');
+ document.getElementById('exam-final-time').textContent='⏱ '+fmtTime(state.examTime);
+ document.getElementById('exam-solutions').innerHTML=state.examTasks.map(t=>`
+  <div class="card" style="margin-bottom:16px">
+   <div style="font-size:11px;color:var(--amber);margin-bottom:4px">${t.id}</div>
+   <div style="font-size:16px;font-weight:700;color:var(--bright);margin-bottom:12px">${esc(t.title)}</div>
+   <div class="sec-label">Решение</div>
+   <code class="cmd-block cmd-amber">${esc(t.solution)}</code>
+  </div>`).join('');
+}
+
+function resetExam(){
+ clearInterval(state.examTimer);
+ state.examStarted=false;
+ document.getElementById('exam-start').classList.remove('hidden');
+ document.getElementById('exam-running').classList.add('hidden');
+ document.getElementById('exam-results').classList.add('hidden');
+}
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+buildFilters();
+renderTaskList();
+renderCmdList();
+renderCmdMain();
+renderPatterns();
+renderBash();
+renderVim();
+// select first task
+if(TASKS.length>0){state.selectedTask=TASKS[0];renderTaskMain();renderTaskList();}
+</script>
+</body>
+</html>
